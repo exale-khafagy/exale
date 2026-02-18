@@ -1,0 +1,137 @@
+// Exale CMS & Masterpiece Marketing Site
+// MongoDB Atlas (M0 Free Tier) via Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// User profiles (synced from Clerk, editable by user)
+model Profile {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId     String   @unique
+  email       String
+  firstName   String?
+  lastName    String?
+  avatarUrl   String?
+  phone       String?
+  companyName String?
+  linkedInUrl String?
+  twitterUrl  String?
+  instagramUrl String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Admin users (synced from Clerk) — role: editor (content/media/inbox) | admin (full access)
+model Admin {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId  String   @unique
+  email    String
+  role     AdminRole @default(ADMIN)
+  createdAt DateTime @default(now())
+}
+
+enum AdminRole {
+  EDITOR
+  ADMIN
+}
+
+// CMS content blocks - all editable text/images from Dashboard
+model ContentBlock {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  key       String    @unique
+  value     String
+  type      ContentType
+  section   String
+  updatedAt DateTime? @default(now()) // Optional for legacy records created before this field existed
+
+  @@index([section])
+}
+
+// Version history for content blocks (rollback support)
+model ContentBlockVersion {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  blockKey  String
+  value     String
+  createdAt DateTime @default(now())
+
+  @@index([blockKey])
+  @@index([createdAt])
+}
+
+enum ContentType {
+  text
+  image
+  rich_text
+}
+
+// Contact Us form submissions
+model ContactSubmission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  phone     String
+  concern   String
+  message   String
+  status    SubmissionStatus @default(NEW)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+// Apply form submissions (with file attachments)
+model ApplicationSubmission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  phone     String
+  industry  String
+  message   String
+  fileUrl   String?
+  status    SubmissionStatus @default(NEW)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+enum SubmissionStatus {
+  NEW
+  READ
+}
+
+// Site-wide settings (singleton)
+model Settings {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  siteName              String   @default("Exale")
+  siteDescription       String   @default("Business development holding company")
+  contactEmail          String   @default("khafagy.ahmedibrahim@gmail.com")
+  notifyEmail           String   @default("khafagy.ahmedibrahim@gmail.com")
+  googleAnalyticsId      String?
+  timezone              String   @default("UTC")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("settings")
+}
+
+// Media library files
+model MediaFile {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  url         String
+  name        String
+  size        Int       // bytes
+  type        String    // MIME type
+  uploadedBy  String?   // clerkId of uploader
+  createdAt   DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([type])
+  @@map("media_files")
+}

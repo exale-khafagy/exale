@@ -1,0 +1,32 @@
+{
+  "name": "exale-marketing",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:generate": "turbo run db:generate",
+    "db:push": "turbo run db:push",
+    "db:migrate": "npm run db:generate && npm run db:push",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "turbo": "^2.3.0"
+  },
+  "packageManager": "npm@10.2.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "eslint-config-next": "^15.0.5",
+    "next": "^15.0.5"
+  }
+}

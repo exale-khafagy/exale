@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --dark: #0E0E12;
+  --violet: #6A4DFF;
+  --violet-soft: rgba(106, 77, 255, 0.08);
+  --text: #1a1a1a;
+  --text-muted: #64748b;
+  --background: #F8F9FB;
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.6);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--text);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Refined glass panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 1rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.06);
+}
+
+/* Hover card - restrained */
+.hover-card {
+  transition: all 0.25s ease;
+}
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.08);
+}
+
+/* Primary CTA - refined */
+.btn-primary {
+  background: var(--violet);
+  color: white;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #5a3de6;
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+/* Hero tagline - subtle shine */
+.shining-text {
+  background: linear-gradient(110deg, #94a3b8 0%, #e2e8f0 20%, #ffffff 50%, #e2e8f0 80%, #94a3b8 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 6s ease-in-out infinite;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@keyframes shine {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 200% center; }
+}
+
+/* Gradient text - subtle */
+.gradient-text {
+  background: linear-gradient(135deg, #5a3de6 0%, #6A4DFF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+::selection {
+  background: rgba(106, 77, 255, 0.2);
+  color: inherit;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+}
+
+/* Skip link - visually hidden until focused (a11y) */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  z-index: 200;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1.25rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  background: var(--violet);
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+}

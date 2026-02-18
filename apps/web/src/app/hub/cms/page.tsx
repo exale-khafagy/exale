@@ -1,0 +1,872 @@
+'use client';
+
+import { useAuth } from '@clerk/nextjs';
+import { useEffect, useState, useCallback } from 'react';
+import { getContent } from '@/lib/api';
+import type { ContentBlock } from '@/lib/api';
+import { RichTextEditor } from '@/components/RichTextEditor';
+import { VersionHistory } from '@/components/hub/VersionHistory';
+
+const SECTIONS = ['home', 'services', 'projects', 'partners', 'media', 'blog'];
+
+/** Human-friendly labels for content block keys */
+const BLOCK_LABELS: Record<string, string> = {
+  hero_headline: 'Hero headline',
+  hero_subheadline: 'Hero subheadline',
+  about_ready_text: 'About — main text',
+  about_cta_text: 'About — button text',
+  partners_headline: 'Partners section — headline',
+  partners_text: 'Partners section — text',
+  partners_cta: 'Partners section — button',
+  philosophy_headline: 'Philosophy — headline',
+  philosophy_text: 'Philosophy — text',
+  contact_headline: 'Contact — headline',
+  contact_cta: 'Contact — button',
+  vision_headline: 'Vision — headline',
+  vision_text: 'Vision — text',
+  founder_story: 'Founder story',
+  philosophy_full: 'Philosophy — full text',
+  footer_cta_headline: 'Footer CTA — headline',
+  footer_cta_text: 'Footer CTA — text',
+  footer_cta_button: 'Footer CTA — button',
+  services_headline: 'Page headline',
+  services_intro: 'Intro text',
+  service_1_title: 'Service 1 — title',
+  service_1_desc: 'Service 1 — description',
+  service_2_title: 'Service 2 — title',
+  service_2_desc: 'Service 2 — description',
+  service_3_title: 'Service 3 — title',
+  service_3_desc: 'Service 3 — description',
+  network_headline: 'Page headline',
+  network_text: 'Main text',
+  media_headline: 'Page headline',
+  media_subtext: 'Subtext',
+  blog_headline: 'Page headline',
+  blog_subheadline: 'Subheadline',
+  blog_teaser: 'Teaser text',
+  blog_label: 'Category label',
+  projects_headline: 'Page headline',
+  projects_intro: 'Intro text',
+};
+
+/** Short descriptions for where each block is used (all sections) */
+const BLOCK_DESCRIPTIONS: Record<string, Record<string, string>> = {
+  home: {
+    hero_headline: 'Main headline at the top of the homepage.',
+    hero_subheadline: 'Subheadline under the hero.',
+    about_ready_text: 'Paragraph in the "Ready to take your first step?" section.',
+    about_cta_text: 'Button label in that section.',
+    partners_headline: 'Headline for the partners block on the homepage.',
+    partners_text: 'Body text for the partners block.',
+    partners_cta: 'Link or button text (e.g. "View All Partners").',
+    philosophy_headline: 'Headline for the philosophy section.',
+    philosophy_text: 'Body text for the philosophy section.',
+    contact_headline: 'Headline above the contact form.',
+    contact_cta: 'Submit button text for the contact form.',
+    vision_headline: 'Vision section headline.',
+    vision_text: 'Vision section body text.',
+    founder_story: 'Founder story paragraph (e.g. About page or homepage).',
+    philosophy_full: 'Extended philosophy text.',
+    footer_cta_headline: 'Headline in the footer call-to-action.',
+    footer_cta_text: 'Body text in the footer CTA.',
+    footer_cta_button: 'Footer CTA button label.',
+  },
+  services: {
+    services_headline: 'Main title at the top of the Services page.',
+    services_intro: 'Intro paragraph below the title.',
+    service_1_title: 'First service card title.',
+    service_1_desc: 'First service card description.',
+    service_2_title: 'Second service card title.',
+    service_2_desc: 'Second service card description.',
+    service_3_title: 'Third service card title.',
+    service_3_desc: 'Third service card description.',
+  },
+  partners: {
+    network_headline: 'Main title on the Partners page.',
+    network_text: 'Main body content about your network.',
+  },
+  media: {
+    media_headline: 'Main title on the Media page.',
+    media_subtext: 'Short line under the title (e.g. "Press releases, brand assets").',
+  },
+  blog: {
+    blog_headline: 'Main title on the Blog page.',
+    blog_subheadline: 'Subheadline under the title.',
+    blog_teaser: 'Short teaser or tagline.',
+    blog_label: 'Category or section label (e.g. "Entrepreneurship").',
+  },
+  projects: {
+    projects_headline: 'Main title on the Projects page.',
+    projects_intro: 'Intro or placeholder text below the title.',
+  },
+};
+
+function getBlockLabel(key: string): string {
+  return BLOCK_LABELS[key] ?? key.replace(/_/g, ' ');
+}
+
+export default function CMSPage() {
+  const { getToken } = useAuth();
+  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
+  const [activeSection, setActiveSection] = useState('home');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [pendingSection, setPendingSection] = useState<string | null>(null);
+  const [showAddBlock, setShowAddBlock] = useState(false);
+  const [deletingKey, setDeletingKey] = useState<string | null>(null);
+  const [blockSearch, setBlockSearch] = useState('');
+  const [newBlock, setNewBlock] = useState({
+    key: '',
+    value: '',
+    type: 'text' as 'text' | 'rich_text' | 'image',
+  });
+
+  async function loadContent() {
+    setLoadError(null);
+    setLoading(true);
+    try {
+      const data = await getContent();
+      setBlocks(data);
+    } catch (err) {
+      setBlocks([]);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load content. Check that the API is running at http://localhost:3002.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadContent();
+  }, []);
+
+  const sectionBlocks = blocks
+    .filter((b) => b.section === activeSection)
+    .filter((b) => {
+      if (!blockSearch.trim()) return true;
+      const searchLower = blockSearch.toLowerCase();
+      return (
+        b.key.toLowerCase().includes(searchLower) ||
+        getBlockLabel(b.key).toLowerCase().includes(searchLower) ||
+        b.value.toLowerCase().includes(searchLower)
+      );
+    });
+  const [edited, setEdited] = useState<Record<string, string>>({});
+  const hasChanges = Object.keys(edited).length > 0;
+
+  const getValue = (b: ContentBlock) => edited[b.key] ?? b.value;
+  const setValue = (key: string, value: string) => {
+    setEdited((prev) => ({ ...prev, [key]: value }));
+  };
+
+  async function refreshBlocks(clearedKey?: string) {
+    if (clearedKey) {
+      setEdited((prev) => {
+        const next = { ...prev };
+        delete next[clearedKey];
+        return next;
+      });
+    }
+    try {
+      const updated = await getContent();
+      setBlocks(updated);
+    } catch {
+      setLoadError('Failed to refresh content.');
+    }
+  }
+
+  const handleSave = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    setSaving(true);
+    setMessage(null);
+    try {
+      const toSave = sectionBlocks.map((b) => ({
+        key: b.key,
+        value: getValue(b),
+        type: b.type,
+        section: b.section,
+      }));
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/content/bulk`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          credentials: 'include',
+          body: JSON.stringify({ blocks: toSave }),
+        },
+      );
+      if (res.status === 401) {
+        setMessage("You don't have access. Please refresh and try again.");
+        return;
+      }
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => '');
+        throw new Error(errorText || 'Failed to save. Please check your connection and try again.');
+      }
+      setEdited({});
+      setMessage('Saved successfully.');
+      await refreshBlocks();
+      // Clear pending section change if any
+      if (pendingSection) {
+        setPendingSection(null);
+      }
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed to save. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  }, [getToken, sectionBlocks, getValue, refreshBlocks, pendingSection]);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === 's' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        if (hasChanges && !saving) handleSave();
+      }
+    };
+    document.addEventListener('keydown', down);
+    return () => document.removeEventListener('keydown', down);
+  }, [hasChanges, saving, handleSave]);
+
+  // Auto-clear success messages after 3 seconds
+  useEffect(() => {
+    if (message && message.includes('success')) {
+      const timer = setTimeout(() => setMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (hasChanges) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [hasChanges]);
+
+  const handleSectionChange = (newSection: string) => {
+    if (hasChanges && newSection !== activeSection) {
+      setPendingSection(newSection);
+    } else {
+      setActiveSection(newSection);
+      setPendingSection(null);
+    }
+  };
+
+  const confirmSectionChange = () => {
+    if (pendingSection) {
+      setActiveSection(pendingSection);
+      setEdited({});
+      setPendingSection(null);
+      setMessage(null);
+    }
+  };
+
+  const cancelSectionChange = () => {
+    setPendingSection(null);
+  };
+
+  const handleCreateBlock = useCallback(async () => {
+    if (!newBlock.key.trim()) {
+      setMessage('Block key is required.');
+      return;
+    }
+    // Validate key format (lowercase, underscores, no spaces)
+    if (!/^[a-z0-9_]+$/.test(newBlock.key)) {
+      setMessage('Block key must be lowercase letters, numbers, and underscores only.');
+      return;
+    }
+    // Check if key already exists
+    if (blocks.some((b) => b.key === newBlock.key)) {
+      setMessage(`Block key "${newBlock.key}" already exists.`);
+      return;
+    }
+
+    const token = await getToken();
+    if (!token) return;
+
+    setSaving(true);
+    setMessage(null);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/content`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            key: newBlock.key,
+            value: newBlock.value,
+            type: newBlock.type,
+            section: activeSection,
+          }),
+        },
+      );
+      if (res.status === 401) {
+        setMessage("You don't have access.");
+        return;
+      }
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => '');
+        throw new Error(errorText || 'Failed to create block.');
+      }
+      setShowAddBlock(false);
+      setNewBlock({ key: '', value: '', type: 'text' });
+      setMessage('Block created successfully.');
+      await loadContent();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed to create block.');
+    } finally {
+      setSaving(false);
+    }
+  }, [getToken, newBlock, activeSection, blocks, loadContent]);
+
+  const handleDeleteBlock = useCallback(
+    async (key: string) => {
+      if (!confirm(`Are you sure you want to delete block "${key}"? This action cannot be undone.`)) {
+        return;
+      }
+
+      const token = await getToken();
+      if (!token) return;
+
+      setDeletingKey(key);
+      setMessage(null);
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/content/${encodeURIComponent(key)}`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            credentials: 'include',
+          },
+        );
+        if (res.status === 401) {
+          setMessage("You don't have access.");
+          return;
+        }
+        if (!res.ok) {
+          const errorText = await res.text().catch(() => '');
+          throw new Error(errorText || 'Failed to delete block.');
+        }
+        setMessage('Block deleted successfully.');
+        // Remove from edited state if present
+        setEdited((prev) => {
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        });
+        await loadContent();
+      } catch (err) {
+        setMessage(err instanceof Error ? err.message : 'Failed to delete block.');
+      } finally {
+        setDeletingKey(null);
+      }
+    },
+    [getToken, loadContent],
+  );
+
+  const getBlockDescription = (key: string, section: string): string =>
+    BLOCK_DESCRIPTIONS[section]?.[key] ?? '';
+
+  const previewContent = sectionBlocks.map((b) => ({
+    key: b.key,
+    value: getValue(b),
+    type: b.type,
+  }));
+
+  if (loading) {
+    return (
+      <div className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+        <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-600 border-t-royal-violet rounded-full animate-spin" />
+        <span>Loading content...</span>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="space-y-4">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">CMS — Content Manager</h1>
+        </div>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <h2 className="text-red-600 dark:text-red-400 font-semibold mb-2">Failed to load content</h2>
+          <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">{loadError}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-xs mb-4">
+            Make sure the API server is running at <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">http://localhost:3002</code>
+          </p>
+          <button
+            onClick={loadContent}
+            className="px-4 py-2 bg-royal-violet hover:bg-royal-violet/90 text-white rounded-lg text-sm font-medium"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* Sticky unsaved changes banner */}
+      {hasChanges && !pendingSection && (
+        <div className="sticky top-0 z-50 bg-amber-50 dark:bg-amber-900/10 border-b border-amber-200 dark:border-amber-800 shadow-sm mb-6 -mx-6 px-6 py-2.5">
+          <div className="flex items-center gap-3 max-w-7xl mx-auto">
+            <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-sm font-medium text-amber-800 dark:text-amber-200">
+              You have unsaved changes
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Section change warning */}
+      {pendingSection && (
+        <div className="sticky top-0 z-50 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800 shadow-sm mb-6 -mx-6 px-6 py-3">
+          <div className="flex items-center justify-between max-w-7xl mx-auto">
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span className="text-sm font-medium text-red-800 dark:text-red-200">
+                You have unsaved changes. Switching to <strong>{pendingSection.charAt(0).toUpperCase() + pendingSection.slice(1)}</strong> will discard them.
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={cancelSectionChange}
+                className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSectionChange}
+                className="px-3 py-1.5 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+              >
+                Discard & Switch
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">CMS — Content Manager</h1>
+          {message && (
+            <div className={`text-sm font-medium mt-1 ${
+              message.includes('success')
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}>
+              {message}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => handleSave()}
+            disabled={!hasChanges || saving}
+            className="px-5 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed bg-royal-violet text-white hover:bg-royal-violet/90 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:hover:bg-gray-400 dark:disabled:hover:bg-gray-600"
+          >
+            {saving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : hasChanges ? (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                </svg>
+                Save
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Saved
+              </>
+            )}
+          </button>
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              showPreview
+                ? 'bg-royal-violet text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+            }`}
+          >
+            {showPreview ? 'Hide Preview' : 'Show Preview'}
+          </button>
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <div className="flex gap-2 mb-2 flex-wrap">
+          {SECTIONS.map((s) => (
+            <button
+              key={s}
+              onClick={() => handleSectionChange(s)}
+              disabled={pendingSection !== null}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                activeSection === s
+                  ? 'bg-royal-violet text-white shadow-sm'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+              }`}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Editing: <strong className="text-gray-700 dark:text-gray-300">{activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}</strong> page
+        </p>
+      </div>
+
+      <div className={`grid gap-6 ${showPreview ? 'lg:grid-cols-2' : ''}`}>
+        <div className="space-y-6 max-w-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+          <div className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Content Blocks
+                </h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {blocks.filter((b) => b.section === activeSection).length} total • {sectionBlocks.length} shown
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddBlock(true)}
+                className="px-4 py-2 bg-royal-violet hover:bg-royal-violet/90 text-white rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Block
+              </button>
+            </div>
+            {blocks.filter((b) => b.section === activeSection).length > 3 && (
+              <div className="relative">
+                <input
+                  type="text"
+                  value={blockSearch}
+                  onChange={(e) => setBlockSearch(e.target.value)}
+                  placeholder="Search blocks..."
+                  className="w-full px-4 py-2 pl-10 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/40"
+                />
+                <svg
+                  className="absolute left-3 top-2.5 w-4 h-4 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                {blockSearch && (
+                  <button
+                    onClick={() => setBlockSearch('')}
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+          {blocks.filter((b) => b.section === activeSection).length === 0 ? (
+            <div className="text-center py-12 space-y-4">
+              <div className="w-16 h-16 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <p className="text-gray-900 dark:text-white font-medium">No content blocks yet</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Get started by adding your first content block
+                </p>
+              </div>
+              <button
+                onClick={() => setShowAddBlock(true)}
+                className="px-4 py-2 bg-royal-violet hover:bg-royal-violet/90 text-white rounded-lg text-sm font-medium inline-flex items-center gap-2 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Your First Block
+              </button>
+              <p className="text-xs text-gray-400 dark:text-gray-500 pt-4">
+                Or run the seed: <code className="rounded bg-gray-100 dark:bg-gray-700 px-1.5 py-0.5 font-mono">cd apps/api && npx prisma db seed</code>
+              </p>
+            </div>
+          ) : sectionBlocks.length === 0 ? (
+            <div className="text-center py-8 space-y-2">
+              <p className="text-gray-600 dark:text-gray-400">No blocks match your search</p>
+              <button
+                onClick={() => setBlockSearch('')}
+                className="text-sm text-royal-violet hover:text-royal-violet/80"
+              >
+                Clear search
+              </button>
+            </div>
+          ) : (
+            sectionBlocks.map((b, idx) => {
+              const isFirstRichText =
+                b.type === 'rich_text' &&
+                sectionBlocks.findIndex((bl) => bl.type === 'rich_text') === idx;
+              const imageUrl = b.type === 'image' ? getValue(b).trim() : '';
+              const showImagePreview =
+                b.type === 'image' &&
+                imageUrl &&
+                (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'));
+              return (
+                <div
+                  key={b.id}
+                  className="space-y-3 pb-6 border-b border-gray-200 dark:border-gray-700 last:border-0 last:pb-0"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                          {getBlockLabel(b.key)}
+                        </label>
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                            b.type === 'rich_text'
+                              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                              : b.type === 'image'
+                                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {b.type === 'rich_text' ? 'Rich' : b.type === 'image' ? 'Image' : 'Text'}
+                        </span>
+                      </div>
+                      <p className="text-xs font-mono text-gray-400 dark:text-gray-500 mb-1">
+                        {b.key}
+                      </p>
+                      {getBlockDescription(b.key, activeSection) && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+                          {getBlockDescription(b.key, activeSection)}
+                        </p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteBlock(b.key)}
+                      disabled={deletingKey === b.key}
+                      className="p-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Delete block"
+                    >
+                      {deletingKey === b.key ? (
+                        <div className="w-4 h-4 border-2 border-red-300 border-t-red-600 rounded-full animate-spin" />
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {b.type === 'rich_text' ? (
+                    <>
+                      {isFirstRichText && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                          Use the toolbar for bold, links, and lists.
+                        </p>
+                      )}
+                      <RichTextEditor
+                        value={getValue(b)}
+                        onChange={(v) => setValue(b.key, v)}
+                        placeholder={`Edit ${getBlockLabel(b.key)}...`}
+                        minHeight="100px"
+                      />
+                    </>
+                  ) : b.type === 'image' ? (
+                    <div className="space-y-2">
+                      {showImagePreview && (
+                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-900/50">
+                          <img
+                            src={imageUrl}
+                            alt={getBlockLabel(b.key)}
+                            className="max-h-48 w-auto object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      )}
+                      <input
+                        type="url"
+                        value={getValue(b)}
+                        onChange={(e) => setValue(b.key, e.target.value)}
+                        placeholder="https://… or paste image URL"
+                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/40"
+                      />
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={getValue(b)}
+                      onChange={(e) => setValue(b.key, e.target.value)}
+                      placeholder={`Edit ${getBlockLabel(b.key)}...`}
+                      className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/40"
+                    />
+                  )}
+                  <VersionHistory
+                    blockKey={b.key}
+                    getToken={getToken}
+                    onRollback={(key) => refreshBlocks(key)}
+                  />
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {showPreview && (
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Preview</h2>
+            <div className="space-y-6 prose prose-sm dark:prose-invert max-w-none">
+              {previewContent.map((item) => (
+                <div key={item.key} className="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-0">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{getBlockLabel(item.key)}</p>
+                  <p className="text-xs font-mono text-gray-400 dark:text-gray-500 mb-2">{item.key}</p>
+                  {item.type === 'rich_text' ? (
+                    <div
+                      className="text-gray-900 dark:text-white [&_a]:text-royal-violet [&_a]:underline"
+                      dangerouslySetInnerHTML={{ __html: item.value || '<em>Empty</em>' }}
+                    />
+                  ) : item.type === 'image' && item.value ? (
+                    <img
+                      src={item.value}
+                      alt={item.key}
+                      className="max-w-full h-auto rounded-lg"
+                    />
+                  ) : (
+                    <p className="text-gray-900 dark:text-white">{item.value || <em>Empty</em>}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer with keyboard shortcut hint */}
+      <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+          <kbd className="rounded bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 font-mono text-xs">
+            Ctrl+S
+          </kbd>{' '}
+          to save changes
+        </p>
+      </div>
+
+      {/* Add Block Modal */}
+      {showAddBlock && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Add New Block</h2>
+              <button
+                onClick={() => {
+                  setShowAddBlock(false);
+                  setNewBlock({ key: '', value: '', type: 'text' });
+                  setMessage(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Block Key <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newBlock.key}
+                  onChange={(e) => setNewBlock({ ...newBlock, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
+                  placeholder="e.g., new_feature_title"
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-royal-violet/40"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Lowercase letters, numbers, and underscores only
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Block Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={newBlock.type}
+                  onChange={(e) => setNewBlock({ ...newBlock, type: e.target.value as 'text' | 'rich_text' | 'image' })}
+                  className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-royal-violet/40"
+                >
+                  <option value="text">Text</option>
+                  <option value="rich_text">Rich Text</option>
+                  <option value="image">Image URL</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Initial Value
+                </label>
+                {newBlock.type === 'rich_text' ? (
+                  <RichTextEditor
+                    value={newBlock.value}
+                    onChange={(v) => setNewBlock({ ...newBlock, value: v })}
+                    placeholder="Enter initial content..."
+                    minHeight="120px"
+                  />
+                ) : (
+                  <input
+                    type={newBlock.type === 'image' ? 'url' : 'text'}
+                    value={newBlock.value}
+                    onChange={(e) => setNewBlock({ ...newBlock, value: e.target.value })}
+                    placeholder={newBlock.type === 'image' ? 'https://...' : 'Enter initial value...'}
+                    className="w-full px-4 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-royal-violet/40"
+                  />
+                )}
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  onClick={handleCreateBlock}
+                  disabled={!newBlock.key.trim() || saving}
+                  className="flex-1 px-4 py-2 bg-royal-violet hover:bg-royal-violet/90 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  {saving ? 'Creating...' : 'Create Block'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowAddBlock(false);
+                    setNewBlock({ key: '', value: '', type: 'text' });
+                    setMessage(null);
+                  }}
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
