@@ -104,8 +104,8 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop nav - visible from lg (1024px) up */}
-        <nav className="hidden lg:flex items-center gap-8" aria-label="Main navigation">
+        {/* Desktop nav - visible from md (768px) up */}
+        <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}
@@ -114,7 +114,7 @@ export function Header() {
         </nav>
 
         {/* Desktop auth */}
-        <div className="hidden lg:flex items-center gap-4 shrink-0">
+        <div className="hidden md:flex items-center gap-4 shrink-0">
           {!isLoaded ? (
             <Link href="/sign-in" className={linkClass}>
               Sign In
@@ -138,11 +138,11 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile menu button - visible below lg */}
+        {/* Mobile menu button - visible below md */}
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="lg:hidden p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="md:hidden p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Open menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,16 +155,16 @@ export function Header() {
       {mobileMenuOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 z-[99] lg:hidden"
+            className="fixed inset-0 bg-black/50 z-[99] md:hidden"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden
           />
           <div
-            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark/98 backdrop-blur-xl border-l border-white/[0.06] z-[101] flex flex-col shadow-2xl lg:hidden"
+            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] max-h-[100dvh] bg-exale-dark backdrop-blur-xl border-l border-white/[0.06] z-[101] flex flex-col shadow-2xl md:hidden"
             role="dialog"
             aria-label="Mobile navigation"
           >
-            <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
+            <div className="flex items-center justify-between p-4 border-b border-white/[0.08] shrink-0">
               <span className="text-white/70 text-xs uppercase tracking-[0.2em] font-semibold">Menu</span>
               <button
                 type="button"
@@ -177,7 +177,7 @@ export function Header() {
                 </svg>
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto p-4 space-y-1" aria-label="Main navigation">
+            <nav className="flex-1 min-h-0 overflow-y-auto p-4 space-y-1" aria-label="Main navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
