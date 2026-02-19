@@ -23,12 +23,18 @@ async function bootstrap() {
     'http://dashboard.localhost:3000',
     'http://127.0.0.1:3000',
   ];
+  const productionOrigins = [
+    'https://exale.net',
+    'https://www.exale.net',
+    'https://hub.exale.net',
+    'https://api.exale.net',
+  ];
   const origins =
     process.env.NODE_ENV === 'development'
       ? [...new Set([...(envOrigins ?? []), ...devOrigins])]
-      : envOrigins ?? ['http://localhost:3000'];
+      : (envOrigins?.length ? envOrigins : productionOrigins);
   app.enableCors({
-    origin: origins.length ? origins : devOrigins,
+    origin: origins.length ? origins : [...devOrigins, ...productionOrigins],
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],

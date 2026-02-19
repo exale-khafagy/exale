@@ -95,7 +95,7 @@ Go to **Settings** → **Environment Variables** and add:
 | Variable | Value | Notes |
 |----------|-------|-------|
 | `DATABASE_URL` | `mongodb+srv://AhmedKhafagy:R08a07N99a@exale-prod.hlqsatd.mongodb.net/exale?retryWrites=true&w=majority` | Your MongoDB production cluster |
-| `CORS_ORIGIN` | `https://exale.net,https://www.exale.net,https://api.exale.net` | Comma-separated, no spaces |
+| `CORS_ORIGIN` | `https://exale.net,https://www.exale.net,https://hub.exale.net,https://api.exale.net` | Comma-separated, no spaces; required for dashboard to call API |
 | `CLERK_SECRET_KEY` | `sk_...` | From Clerk (Step 2.2) |
 | `NODE_ENV` | `production` | Optional but recommended |
 
@@ -257,10 +257,11 @@ npx prisma db seed
 - Check DNS propagation: [whatsmydns.net](https://www.whatsmydns.net)
 - Verify records match exactly what Vercel shows
 
-### API Returns 404?
-- Check `NEXT_PUBLIC_API_URL` in Web project matches API domain
-- Verify API project deployed successfully
-- Check API logs in Vercel → Deployments
+### API Returns 404 at api.exale.net?
+- **Domain must point to the API project:** In Vercel, `api.exale.net` must be added under the **API** project (Root Directory: `apps/api`), not the Web project. If it’s on the Web project, you’ll get a 404.
+- After a successful deploy, opening `https://api.exale.net` should return JSON (e.g. `{"api":"exale","status":"ok",...}`). `https://api.exale.net/health` should return `{"status":"ok","timestamp":"..."}`.
+- Set `CORS_ORIGIN` in the API project to include `https://exale.net`, `https://www.exale.net`, and `https://hub.exale.net` (comma-separated) so the dashboard can call the API.
+- Check API build logs in Vercel → API project → Deployments.
 
 ### Authentication Not Working?
 - Verify Clerk keys are correct

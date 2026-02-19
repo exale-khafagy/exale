@@ -15,12 +15,16 @@ async function getApp() {
         ? corsOrigins
         : [
             'http://localhost:3000',
+            'http://127.0.0.1:3000',
             'http://dashboard.localhost:3000',
             'https://exale.net',
             'https://www.exale.net',
+            'https://hub.exale.net',
             'https://dashboard.exale.net',
           ],
       credentials: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     });
     await app.init();
   }
