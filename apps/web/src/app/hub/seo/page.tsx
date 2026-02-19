@@ -119,10 +119,10 @@ export default function SEOPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">SEO Management</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage meta titles, descriptions, and Open Graph settings</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">SEO Management</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Manage meta titles, descriptions, and Open Graph settings</p>
         </div>
         <button
           onClick={handleSave}

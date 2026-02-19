@@ -286,13 +286,13 @@ export default function InboxContactPage() {
         <p className="text-gray-600 dark:text-gray-400">Manage contact form submissions</p>
       </div>
       <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
             placeholder="Search by name, email, phone, concern..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-64 max-w-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/50"
+            className="w-full sm:w-64 max-w-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/50"
           />
           <div className="flex items-center gap-1 text-xs">
             {(['ALL', 'NEW', 'READ'] as const).map((f) => (
@@ -344,7 +344,8 @@ export default function InboxContactPage() {
           </button>
         </div>
       </div>
-      <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-left">
           <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <tr>
@@ -430,6 +431,63 @@ export default function InboxContactPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-3">
+        {filteredSubmissions.length === 0 ? (
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
+            <div className="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
+              <Image
+                src="/images/empty-tickets.png"
+                alt="No submissions"
+                width={120}
+                height={80}
+                className="opacity-40"
+              />
+              <p>No submissions yet.</p>
+            </div>
+          </div>
+        ) : (
+          filteredSubmissions.map((s) => (
+            <div
+              key={s.id}
+              onClick={() => setSelected(s)}
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm active:bg-gray-50 dark:active:bg-gray-700/50 cursor-pointer transition-colors"
+            >
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(s.id)}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    toggleRowSelected(s.id);
+                  }}
+                  className="mt-1 h-4 w-4 shrink-0 rounded border-gray-300 dark:border-gray-600 text-royal-violet focus:ring-royal-violet/50"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="font-medium text-gray-900 dark:text-white truncate">{s.name}</p>
+                    <span
+                      className={`shrink-0 inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
+                        s.status === 'NEW'
+                          ? 'bg-royal-violet/10 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
+                          : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+                      }`}
+                    >
+                      {s.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{s.concern}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">
+                    {new Date(s.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
       {selected && (
         <div
           className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4"

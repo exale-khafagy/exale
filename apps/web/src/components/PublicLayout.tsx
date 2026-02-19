@@ -59,7 +59,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         Skip to main content
       </a>
       <Header />
-      <main id="main-content" className="relative pt-20 min-h-screen bg-background">{children}</main>
+      <main id="main-content" className="relative pt-20 min-h-screen bg-background overflow-x-hidden">{children}</main>
       <Footer />
     </>
   );

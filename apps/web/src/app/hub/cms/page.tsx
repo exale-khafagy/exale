@@ -459,9 +459,9 @@ export default function CMSPage() {
         </div>
       )}
 
-      <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">CMS — Content Manager</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">CMS — Content Manager</h1>
           {message && (
             <div className={`text-sm font-medium mt-1 ${
               message.includes('success')
@@ -512,8 +512,8 @@ export default function CMSPage() {
         </div>
       </div>
 
-      <div className="mb-4">
-        <div className="flex gap-2 mb-2 flex-wrap">
+      <div className="mb-4 overflow-x-auto">
+        <div className="flex gap-2 mb-2 flex-nowrap sm:flex-wrap pb-1 sm:pb-0 -mx-1 sm:mx-0">
           {SECTIONS.map((s) => (
             <button
               key={s}
@@ -535,7 +535,7 @@ export default function CMSPage() {
       </div>
 
       <div className={`grid gap-6 ${showPreview ? 'lg:grid-cols-2' : ''}`}>
-        <div className="space-y-6 max-w-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm">
+        <div className="space-y-6 w-full max-w-2xl min-w-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-6 shadow-sm">
           <div className="space-y-3 pb-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <div>

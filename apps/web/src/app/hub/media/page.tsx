@@ -173,10 +173,10 @@ export default function MediaLibraryPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Media Library</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage images, documents, and files</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Media Library</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Manage images, documents, and files</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -230,7 +230,7 @@ export default function MediaLibraryPage() {
             placeholder="Search files..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-64 max-w-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/50"
+            className="w-full sm:w-64 max-w-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/50"
           />
           <select
             value={filterType}
@@ -253,7 +253,7 @@ export default function MediaLibraryPage() {
           <p className="text-gray-500 dark:text-gray-400">No files found.</p>
         </div>
       ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredFiles.map((file) => (
             <div
               key={file.id}

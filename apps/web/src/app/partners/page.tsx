@@ -22,7 +22,7 @@ export default async function PartnersPage() {
     "Our success is intertwined with yours, and that of our valued network. At Exale, we thrive on creating powerful collaborations. We build partnerships that facilitate seamless execution, enabling the exchange of valuable services and fostering an ecosystem where every entity contributes to collective achievement. We work together, rely on each other, and grow together.";
 
   return (
-    <div className="max-w-6xl mx-auto py-16 md:py-24 px-6">
+    <div className="max-w-6xl mx-auto py-12 md:py-24 px-4 sm:px-6">
       <div className="text-center mb-16">
         <h1 className="text-3xl md:text-4xl font-bold mb-5 text-gray-900 tracking-tight">
           {c.network_headline ?? 'Our Network'}

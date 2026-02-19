@@ -39,7 +39,7 @@ export function Hero() {
           initial={{ opacity: 1, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-xl md:text-3xl font-semibold shining-text max-w-2xl mx-auto tracking-wide"
+          className="text-xl sm:text-2xl md:text-3xl font-semibold shining-text max-w-2xl mx-auto tracking-wide px-2"
         >
           Not Every Beginning Has An Ending
         </motion.h1>

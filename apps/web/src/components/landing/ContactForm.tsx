@@ -54,7 +54,7 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
   return (
     <section
       id="contact"
-      className="min-h-screen snap-start snap-always flex flex-col items-center justify-center py-24 px-6 relative overflow-hidden bg-stone-100"
+      className="min-h-screen snap-start snap-always flex flex-col items-center justify-center py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden bg-stone-100"
     >
       <div
         className="absolute inset-0 z-0"
@@ -89,7 +89,7 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
         onSubmit={handleSubmit}
-        className="glass-panel p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-4 rounded-2xl w-full max-w-4xl relative z-10"
+        className="glass-panel p-6 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-4 rounded-2xl w-full max-w-4xl relative z-10"
       >
         <input
           name="name"

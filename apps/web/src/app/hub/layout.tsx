@@ -40,6 +40,7 @@ function HubLayoutContent({
   const [role, setRole] = useState<'EDITOR' | 'ADMIN' | null>(null);
   const [checking, setChecking] = useState(true);
   const [isDashboardSubdomain, setIsDashboardSubdomain] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navItems = navItemsAll.filter((i) => !('adminOnly' in i && i.adminOnly) || role === 'ADMIN');
 
   useEffect(() => {
@@ -138,6 +139,19 @@ function HubLayoutContent({
     checkAdmin();
   }, [user, getToken, router, pathname]);
 
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSidebarOpen(false);
+    };
+    document.addEventListener('keydown', onEscape);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onEscape);
+      document.body.style.overflow = '';
+    };
+  }, [sidebarOpen]);
+
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -179,70 +193,122 @@ function HubLayoutContent({
           <>
             <CommandPalette />
             <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
-            <aside className="w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-300 dark:bg-gray-900 flex flex-col">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-800">
-                <Link href={isDashboardSubdomain ? '/' : '/hub'} className="flex items-center gap-2">
-                  <Image
-                    src="/images/exale-logo.png"
-                    alt="Exale Dashboard"
-                    width={100}
-                    height={36}
-                    className="h-8 w-auto object-contain dark:brightness-0 dark:invert"
-                  />
-                  <span className="text-gray-500 dark:text-gray-400 text-xs font-medium ml-2">Dashboard</span>
-                </Link>
-              </div>
-              <nav className="flex-1 p-4 space-y-1">
-                {navItems.map((item) => {
-                  const href = isDashboardSubdomain ? item.subdomain : item.hub;
-                  const isActive =
-                    href === (isDashboardSubdomain ? '/' : '/hub')
-                      ? pathname === href
-                      : pathname === href || pathname?.startsWith(href + '/');
-                  return (
-                    <Link
-                      key={item.hub}
-                      href={href}
-                      className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                        isActive
-                          ? 'bg-royal-violet/10 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
-                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
-            </aside>
-            <div className="flex-1 flex flex-col min-w-0">
-              <header className="h-16 border-b border-gray-200 dark:border-gray-700 bg-gray-300 dark:bg-gray-900 flex items-center justify-between px-6 gap-4">
-                <div className="flex-1" />
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={toggleTheme}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === 'light' ? (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                      </svg>
-                    ) : (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                    )}
-                  </button>
-                  <Link href={SITE_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-                    View Site
+              {/* Mobile backdrop */}
+              <div
+                className={`fixed inset-0 bg-black/50 z-30 lg:hidden transition-opacity duration-200 ${
+                  sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={() => setSidebarOpen(false)}
+                aria-hidden
+              />
+
+              {/* Sidebar - fixed overlay on mobile, static on desktop */}
+              <aside
+                className={`fixed lg:relative inset-y-0 left-0 z-40 w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-300 dark:bg-gray-900 flex flex-col transform transition-transform duration-200 ease-out ${
+                  sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+                }`}
+              >
+                <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                  <Link href={isDashboardSubdomain ? '/' : '/hub'} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
+                    <Image
+                      src="/images/exale-logo.png"
+                      alt="Exale Dashboard"
+                      width={100}
+                      height={36}
+                      className="h-8 w-auto object-contain dark:brightness-0 dark:invert"
+                    />
+                    <span className="text-gray-500 dark:text-gray-400 text-xs font-medium ml-2">Dashboard</span>
                   </Link>
-                  <UserButton afterSignOutUrl={SITE_URL} />
+                  <button
+                    type="button"
+                    onClick={() => setSidebarOpen(false)}
+                    className="lg:hidden p-2 -mr-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    aria-label="Close menu"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-              </header>
-              <main className="flex-1 p-6 overflow-auto bg-gray-50 dark:bg-gray-900">{children}</main>
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                  {navItems.map((item) => {
+                    const href = isDashboardSubdomain ? item.subdomain : item.hub;
+                    const isActive =
+                      href === (isDashboardSubdomain ? '/' : '/hub')
+                        ? pathname === href
+                        : pathname === href || pathname?.startsWith(href + '/');
+                    return (
+                      <Link
+                        key={item.hub}
+                        href={href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] flex items-center ${
+                          isActive
+                            ? 'bg-royal-violet/10 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </aside>
+
+              <div className="flex-1 flex flex-col min-w-0">
+                <header className="h-16 border-b border-gray-200 dark:border-gray-700 bg-gray-300 dark:bg-gray-900 flex items-center justify-between px-4 sm:px-6 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setSidebarOpen(true)}
+                    className="lg:hidden p-2 -ml-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    aria-label="Open menu"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </button>
+                  <div className="flex-1 lg:flex-none" />
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <button
+                      onClick={toggleTheme}
+                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                      aria-label="Toggle theme"
+                    >
+                      {theme === 'light' ? (
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                      )}
+                    </button>
+                    <Link
+                      href={SITE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    >
+                      View Site
+                    </Link>
+                    <Link
+                      href={SITE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="sm:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                      aria-label="View site"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </Link>
+                    <UserButton afterSignOutUrl={SITE_URL} />
+                  </div>
+                </header>
+                <main className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-50 dark:bg-gray-900">{children}</main>
+              </div>
             </div>
-          </div>
           </>
         )}
       </SignedIn>

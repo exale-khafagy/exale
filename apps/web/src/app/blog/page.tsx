@@ -8,7 +8,7 @@ export default async function BlogPage() {
   const c = contentMap(blocks);
 
   return (
-    <div className="max-w-4xl mx-auto py-16 md:py-24 px-6">
+    <div className="max-w-4xl mx-auto py-12 md:py-24 px-4 sm:px-6">
       <h1 className="text-3xl md:text-4xl font-bold mb-10 text-gray-900 tracking-tight">
         {c.blog_headline ?? 'Insights & Stories'}
       </h1>

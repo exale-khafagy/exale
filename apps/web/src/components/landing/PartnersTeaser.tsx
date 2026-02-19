@@ -8,7 +8,7 @@ const PARTNER_PLACEHOLDER_COUNT = 6;
 
 export function PartnersTeaser() {
   return (
-    <section className="min-h-screen snap-start snap-always flex flex-col items-center justify-center py-24 px-6 relative overflow-hidden bg-stone-100">
+    <section className="min-h-screen snap-start snap-always flex flex-col items-center justify-center py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden bg-stone-100">
       <div
         className="absolute inset-0 z-0"
         style={{

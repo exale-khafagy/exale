@@ -174,10 +174,10 @@ export default function ActivityPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Activity Log</h1>
-          <p className="text-gray-600 dark:text-gray-400">Track changes and actions in the dashboard</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Activity Log</h1>
+          <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">Track changes and actions in the dashboard</p>
         </div>
         <button
           onClick={exportCsv}
@@ -205,7 +205,7 @@ export default function ActivityPage() {
         <select
           value={daysFilter}
           onChange={(e) => setDaysFilter(Number(e.target.value))}
-          className="ml-auto px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white"
+          className="w-full sm:w-auto sm:ml-auto px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-white"
         >
           <option value={7}>Last 7 days</option>
           <option value={30}>Last 30 days</option>
@@ -224,7 +224,7 @@ export default function ActivityPage() {
             {filteredItems.map((item) => (
               <div
                 key={item.id}
-                className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
               >
                 <span
                   className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full shrink-0 ${
@@ -242,7 +242,7 @@ export default function ActivityPage() {
                 {item.link && (
                   <Link
                     href={item.link}
-                    className="shrink-0 text-sm text-royal-violet hover:underline font-medium"
+                    className="shrink-0 text-sm text-royal-violet hover:underline font-medium self-start sm:self-center"
                   >
                     View
                   </Link>

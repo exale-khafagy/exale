@@ -33,7 +33,7 @@ export default async function ServicesPage() {
   const c = contentMap(blocks);
 
   return (
-    <div className="max-w-6xl mx-auto py-16 md:py-24 px-6">
+    <div className="max-w-6xl mx-auto py-12 md:py-24 px-4 sm:px-6">
       <div className="text-center mb-16">
         <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-900 tracking-tight">
           {c.services_headline ?? 'Our Services'}
@@ -46,7 +46,7 @@ export default async function ServicesPage() {
         {SERVICES.map((s) => (
           <div
             key={s.title}
-            className="hover-card bg-white p-8 rounded-2xl shadow-sm border border-gray-100"
+            className="hover-card bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100"
           >
             <div className="w-14 h-14 bg-royal-violet/10 rounded-xl flex items-center justify-center mb-6 text-2xl">
               {s.icon}

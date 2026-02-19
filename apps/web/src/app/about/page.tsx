@@ -31,19 +31,19 @@ export default async function AboutPage() {
     "Ahmed Khafagy firmly believes that everyone deserves a chance to pursue their entrepreneurial dreams. He champions the idea that the initial spark of excitement that ignites a new venture is a powerful force that must be harnessed and nurtured. This philosophy is the cornerstone of Exale's mission.";
 
   return (
-    <div className="max-w-5xl mx-auto py-16 md:py-24 px-6 space-y-24">
+    <div className="max-w-5xl mx-auto py-12 md:py-24 px-4 sm:px-6 space-y-16 md:space-y-24">
       <section>
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 tracking-tight leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-gray-900 tracking-tight leading-tight">
           Our Vision: <br />
           <span className="gradient-text">Your Business, Independent and Thriving</span>
         </h1>
-        <div className="glass-panel p-8 md:p-12 rounded-3xl">
+        <div className="glass-panel p-6 sm:p-8 md:p-12 rounded-3xl">
           <p className="text-lg md:text-xl text-gray-700 leading-relaxed">{visionText}</p>
         </div>
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold mb-5 text-gray-900">
+        <h2 className="text-xl sm:text-2xl font-bold mb-5 text-gray-900">
           The Foundation of Exale: <span className="gradient-text">Ahmed Khafagy&apos;s Journey</span>
         </h2>
         <p className="text-gray-600 mb-8 leading-relaxed text-lg">{founderStory}</p>
@@ -61,9 +61,9 @@ export default async function AboutPage() {
       </section>
 
       <section>
-        <div className="bg-exale-dark text-white p-8 md:p-12 rounded-3xl relative overflow-hidden">
+        <div className="bg-exale-dark text-white p-6 sm:p-8 md:p-12 rounded-3xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-royal-violet rounded-full blur-[100px] opacity-30 pointer-events-none" />
-          <h2 className="text-2xl font-bold mb-5 relative z-10">
+          <h2 className="text-xl sm:text-2xl font-bold mb-5 relative z-10">
             Our Philosophy: Unleashing Potential, Sustaining Momentum
           </h2>
           <p className="text-gray-300 leading-relaxed text-lg relative z-10">{philosophyText}</p>

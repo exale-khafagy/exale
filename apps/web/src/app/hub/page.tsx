@@ -89,7 +89,7 @@ export default function HubPage() {
         <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's what's happening with your website.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <Link
           href={inboxPath}
           className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-royal-violet/50 transition-all"
@@ -188,7 +188,7 @@ export default function HubPage() {
 
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           <Link
             href={inboxPath}
             className="px-4 py-2 bg-royal-violet text-white rounded-lg text-sm font-medium hover:bg-royal-violet/90 transition-colors"

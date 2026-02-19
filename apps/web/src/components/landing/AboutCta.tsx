@@ -10,7 +10,7 @@ export function AboutCta() {
   return (
     <section
       id="about-cta"
-      className="min-h-screen snap-start snap-always flex flex-col items-center justify-center py-24 px-6 relative overflow-hidden bg-stone-100"
+      className="min-h-screen snap-start snap-always flex flex-col items-center justify-center py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden bg-stone-100"
     >
       <div
         className="absolute inset-0 z-0"
@@ -28,7 +28,7 @@ export function AboutCta() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          className="text-3xl md:text-5xl font-bold mb-8 text-gray-900 leading-[1.15] tracking-tight"
+          className="text-2xl sm:text-3xl md:text-5xl font-bold mb-6 sm:mb-8 text-gray-900 leading-[1.15] tracking-tight"
         >
           Ready to take your{' '}
           <span className="gradient-text">first step?</span>
@@ -38,7 +38,7 @@ export function AboutCta() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
-          className="glass-panel p-8 md:p-12 rounded-2xl"
+          className="glass-panel p-6 sm:p-8 md:p-12 rounded-2xl"
         >
           <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto">
             {INTRO}

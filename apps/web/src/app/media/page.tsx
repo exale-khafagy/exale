@@ -14,7 +14,7 @@ export default async function MediaPage() {
   const c = contentMap(blocks);
 
   return (
-    <div className="max-w-6xl mx-auto py-16 md:py-24 px-6">
+    <div className="max-w-6xl mx-auto py-12 md:py-24 px-4 sm:px-6">
       <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-900 tracking-tight">
         {c.media_headline ?? 'Media Center'}
       </h1>

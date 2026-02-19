@@ -51,7 +51,7 @@ export default function ApplyPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-16 md:py-24 px-6">
+    <div className="max-w-2xl mx-auto py-12 md:py-24 px-4 sm:px-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -72,7 +72,7 @@ export default function ApplyPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         onSubmit={handleSubmit}
-        className="glass-panel p-8 md:p-10 rounded-3xl space-y-5"
+        className="glass-panel p-6 sm:p-8 md:p-10 rounded-3xl space-y-5"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <input
