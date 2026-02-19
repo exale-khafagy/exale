@@ -18,36 +18,36 @@ export function Hero() {
         aria-hidden
       />
       {/* Gradient overlays for depth */}
-      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/50 via-black/20 to-black/70" aria-hidden />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/55 via-black/15 to-black/65" aria-hidden />
 
-      <div className="relative z-10 flex flex-col items-center justify-center h-full pb-24">
+      <div className="relative z-10 flex flex-col items-center justify-center h-full pb-28">
         <motion.div
-          initial={{ opacity: 1 }}
+          initial={{ opacity: 0.9 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
+          transition={{ duration: 0.7 }}
+          className="mb-12"
         >
           <Image
             src="/images/x-exale.png"
             alt="Exale"
-            width={256}
-            height={256}
-            className="w-40 md:w-60"
+            width={280}
+            height={280}
+            className="w-44 sm:w-52 md:w-64"
           />
         </motion.div>
         <motion.h1
-          initial={{ opacity: 1, y: 12 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-xl sm:text-2xl md:text-3xl font-semibold shining-text max-w-2xl mx-auto tracking-wide px-2"
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-2xl sm:text-3xl md:text-4xl font-semibold shining-text max-w-2xl mx-auto tracking-wide px-4"
         >
           Not Every Beginning Has An Ending
         </motion.h1>
         <motion.p
-          initial={{ opacity: 1 }}
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          className="mt-8 text-white/40 text-xs uppercase tracking-[0.2em]"
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="mt-10 text-white/50 text-xs uppercase tracking-[0.25em] font-medium"
         >
           Your journey starts here
         </motion.p>
@@ -61,10 +61,10 @@ export function Hero() {
       >
         <Link
           href="#about-cta"
-          className="group flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors duration-300"
+          className="group flex flex-col items-center gap-2.5 text-white/55 hover:text-white transition-colors duration-300"
           aria-label="Scroll down to content"
         >
-          <span className="text-xs uppercase tracking-[0.25em]">Scroll for more</span>
+          <span className="text-[11px] uppercase tracking-[0.3em] font-medium">Scroll for more</span>
           <span className="flex h-10 w-6 items-center justify-center rounded-full border-2 border-current opacity-80 group-hover:opacity-100 transition-opacity">
             <span className="animate-bounce block">
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

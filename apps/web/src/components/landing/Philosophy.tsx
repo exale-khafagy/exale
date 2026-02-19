@@ -25,19 +25,19 @@ export function Philosophy() {
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="text-center max-w-4xl mx-auto relative z-10"
       >
-        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-gray-900 mb-8 sm:mb-10 leading-[1.15] tracking-tight">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 sm:mb-10 leading-[1.12] tracking-tight">
           You take a step;
           <br />
           <span className="gradient-text">We take you a mile.</span>
         </h2>
         <motion.div
-          initial={{ opacity: 1, y: 20 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-30px' }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.4, 0, 0.2, 1] }}
-          className="glass-panel p-6 sm:p-8 md:p-12 rounded-3xl text-left max-w-3xl mx-auto"
+          className="glass-panel p-6 sm:p-8 md:p-10 rounded-2xl text-left max-w-3xl mx-auto"
         >
-          <p className="text-gray-600 text-base md:text-lg leading-relaxed">{TEXT}</p>
+          <p className="text-gray-600 text-base md:text-lg leading-[1.7]">{TEXT}</p>
         </motion.div>
       </motion.div>
     </section>

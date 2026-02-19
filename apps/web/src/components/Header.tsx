@@ -23,7 +23,7 @@ const navLinks = [
 ];
 
 const linkClass =
-  'text-[11px] uppercase tracking-[0.15em] font-medium text-white/80 hover:text-white transition-colors duration-200';
+  'text-xs uppercase tracking-[0.18em] font-semibold text-white/85 hover:text-white transition-colors duration-200';
 
 export function Header() {
   const { user } = useUser();
@@ -88,8 +88,8 @@ export function Header() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-exale-dark border-b border-white/[0.08]">
-      <div className="max-w-6xl mx-auto px-4 lg:px-6 py-4 flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-exale-dark/95 backdrop-blur-md border-b border-white/[0.06]">
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 py-3.5 flex items-center justify-between">
         <Link
           href="/"
           className="flex items-center gap-3 shrink-0 transition-opacity hover:opacity-80"
@@ -99,13 +99,13 @@ export function Header() {
             alt="Exale"
             width={120}
             height={40}
-            className="h-8 w-auto object-contain"
+            className="h-9 w-auto object-contain"
             priority
           />
         </Link>
 
         {/* Desktop nav - visible from lg (1024px) up */}
-        <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
+        <nav className="hidden lg:flex items-center gap-8" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}
@@ -160,12 +160,12 @@ export function Header() {
             aria-hidden
           />
           <div
-            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark border-l border-white/[0.08] z-[101] flex flex-col shadow-xl lg:hidden"
+            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark/98 backdrop-blur-xl border-l border-white/[0.06] z-[101] flex flex-col shadow-2xl lg:hidden"
             role="dialog"
             aria-label="Mobile navigation"
           >
             <div className="flex items-center justify-between p-4 border-b border-white/[0.08]">
-              <span className="text-white/60 text-xs uppercase tracking-wider font-medium">Menu</span>
+              <span className="text-white/70 text-xs uppercase tracking-[0.2em] font-semibold">Menu</span>
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
@@ -183,7 +183,7 @@ export function Header() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-4 px-4 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 transition-colors min-h-[44px] flex items-center"
+                  className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white/85 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] flex items-center"
                 >
                   {link.label}
                 </Link>
@@ -193,7 +193,7 @@ export function Header() {
                 <Link
                   href="/sign-in"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block py-4 px-4 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 transition-colors min-h-[44px] flex items-center"
+                  className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white/85 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] flex items-center"
                 >
                   Sign In
                 </Link>
@@ -214,7 +214,7 @@ export function Header() {
                       <Link
                         href="/hub"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="block py-4 px-4 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 transition-colors min-h-[44px] flex items-center"
+                        className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white/85 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] flex items-center"
                       >
                         Dashboard
                       </Link>

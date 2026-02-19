@@ -31,14 +31,14 @@ export default async function AboutPage() {
     "Ahmed Khafagy firmly believes that everyone deserves a chance to pursue their entrepreneurial dreams. He champions the idea that the initial spark of excitement that ignites a new venture is a powerful force that must be harnessed and nurtured. This philosophy is the cornerstone of Exale's mission.";
 
   return (
-    <div className="max-w-5xl mx-auto py-12 md:py-24 px-4 sm:px-6 space-y-16 md:space-y-24">
+    <div className="max-w-5xl mx-auto py-16 md:py-28 px-4 sm:px-6 lg:px-8 space-y-20 md:space-y-28">
       <section>
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-gray-900 tracking-tight leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-gray-900 tracking-tight leading-[1.12]">
           Our Vision: <br />
           <span className="gradient-text">Your Business, Independent and Thriving</span>
         </h1>
-        <div className="glass-panel p-6 sm:p-8 md:p-12 rounded-3xl">
-          <p className="text-lg md:text-xl text-gray-700 leading-relaxed">{visionText}</p>
+        <div className="glass-panel p-6 sm:p-8 md:p-12 rounded-2xl">
+          <p className="text-lg md:text-xl text-gray-700 leading-[1.7]">{visionText}</p>
         </div>
       </section>
 
@@ -51,7 +51,7 @@ export default async function AboutPage() {
           {SKILLS.map((s) => (
             <div
               key={s.title}
-              className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:border-royal-violet/30 hover:shadow-md transition-all duration-300"
+              className="bg-white p-5 rounded-2xl border border-gray-200/90 shadow-card hover:shadow-card-hover hover:border-royal-violet/30 transition-all duration-300"
             >
               <h3 className="font-bold text-gray-900">{s.title}</h3>
               <p className="text-sm text-gray-500 mt-1">{s.desc}</p>
@@ -61,12 +61,12 @@ export default async function AboutPage() {
       </section>
 
       <section>
-        <div className="bg-exale-dark text-white p-6 sm:p-8 md:p-12 rounded-3xl relative overflow-hidden">
+        <div className="bg-exale-dark text-white p-6 sm:p-8 md:p-12 rounded-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-royal-violet rounded-full blur-[100px] opacity-30 pointer-events-none" />
-          <h2 className="text-xl sm:text-2xl font-bold mb-5 relative z-10">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-5 relative z-10 tracking-tight">
             Our Philosophy: Unleashing Potential, Sustaining Momentum
           </h2>
-          <p className="text-gray-300 leading-relaxed text-lg relative z-10">{philosophyText}</p>
+          <p className="text-gray-300 leading-[1.7] text-lg relative z-10">{philosophyText}</p>
         </div>
       </section>
     </div>

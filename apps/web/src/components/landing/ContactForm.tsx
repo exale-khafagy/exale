@@ -9,7 +9,7 @@ interface ContactFormProps {
 }
 
 const inputClass =
-  'p-4 rounded-xl bg-white/70 border border-gray-200/80 text-gray-900 placeholder:text-gray-400 focus:border-royal-violet focus:ring-2 focus:ring-royal-violet/20 outline-none transition-all duration-200';
+  'p-4 rounded-xl bg-white/80 border border-gray-200/90 text-gray-900 placeholder:text-gray-500 focus:border-royal-violet focus:ring-2 focus:ring-royal-violet/25 outline-none transition-all duration-200 text-sm';
 
 export function ContactForm({ headline, ctaText }: ContactFormProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -67,19 +67,19 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
       />
       <div className="absolute inset-0 z-[1] bg-stone-100/55" aria-hidden />
       <motion.h2
-        initial={{ opacity: 1, y: 20 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 relative z-10"
+        className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 relative z-10 tracking-tight"
       >
         {headline}
       </motion.h2>
       <motion.p
-        initial={{ opacity: 1, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.05 }}
-        className="text-gray-600 mb-10 max-w-md text-center relative z-10"
+        className="text-gray-600 mb-10 max-w-md text-center relative z-10 text-sm md:text-base leading-relaxed"
       >
         We&apos;d love to hear from you. Reach out and let&apos;s start a conversation.
       </motion.p>
@@ -89,7 +89,7 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
         viewport={{ once: true }}
         transition={{ delay: 0.1 }}
         onSubmit={handleSubmit}
-        className="glass-panel p-6 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-4 rounded-2xl w-full max-w-4xl relative z-10"
+        className="glass-panel p-6 sm:p-8 md:p-10 grid grid-cols-1 md:grid-cols-2 gap-5 rounded-2xl w-full max-w-4xl relative z-10"
       >
         <input
           name="name"
@@ -157,7 +157,7 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
           <button
             type="submit"
             disabled={status === 'loading'}
-            className="btn-primary w-full md:w-auto px-8 py-3.5 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-primary w-full md:w-auto px-8 py-4 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {status === 'loading' ? 'Sending...' : ctaText}
           </button>

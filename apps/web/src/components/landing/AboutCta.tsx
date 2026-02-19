@@ -24,28 +24,28 @@ export function AboutCta() {
       <div className="absolute inset-0 z-[1] bg-stone-100/55" aria-hidden />
       <div className="max-w-4xl w-full text-center relative z-10">
         <motion.h2
-          initial={{ opacity: 1, y: 24 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          className="text-2xl sm:text-3xl md:text-5xl font-bold mb-6 sm:mb-8 text-gray-900 leading-[1.15] tracking-tight"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 sm:mb-10 text-gray-900 leading-[1.12] tracking-tight"
         >
           Ready to take your{' '}
           <span className="gradient-text">first step?</span>
         </motion.h2>
         <motion.div
-          initial={{ opacity: 1, y: 24 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-50px' }}
           transition={{ duration: 0.6, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
-          className="glass-panel p-6 sm:p-8 md:p-12 rounded-2xl"
+          className="glass-panel p-6 sm:p-8 md:p-10 lg:p-12 rounded-2xl"
         >
-          <p className="text-base md:text-lg text-gray-600 leading-relaxed mb-8 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-gray-600 leading-[1.7] mb-8 max-w-2xl mx-auto">
             {INTRO}
           </p>
           <Link
             href="/apply"
-            className="btn-primary inline-flex items-center gap-2 px-8 py-3.5 group"
+            className="btn-primary inline-flex items-center gap-2.5 px-8 py-4 group"
           >
             Start Your Journey
             <svg className="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">

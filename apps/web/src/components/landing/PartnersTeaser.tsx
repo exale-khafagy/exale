@@ -26,21 +26,21 @@ export function PartnersTeaser() {
         transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         className="max-w-5xl w-full text-center relative z-10"
       >
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-[0.15em] mb-3">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-[0.2em] mb-4">
           Our Network
         </p>
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 text-gray-900 leading-[1.12] tracking-tight">
           Those we{' '}
           <span className="gradient-text">rely on.</span>
         </h2>
-        <p className="text-gray-600 text-base leading-relaxed max-w-xl mx-auto mb-12">
+        <p className="text-gray-600 text-base leading-[1.7] max-w-xl mx-auto mb-12">
           Our success is intertwined with yours. We build partnerships that facilitate seamless execution.
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-8 md:gap-10 mb-12">
           {Array.from({ length: PARTNER_PLACEHOLDER_COUNT }, (_, i) => (
             <div
               key={i}
-              className="flex items-center justify-center p-4 rounded-xl bg-white/70 border border-gray-200/80 shadow-sm min-h-[100px]"
+              className="flex items-center justify-center p-5 rounded-2xl bg-white/85 border border-gray-200/90 shadow-card hover:shadow-card-hover transition-shadow min-h-[110px]"
             >
               <Image
                 src="/images/x-exale.png"
@@ -54,7 +54,7 @@ export function PartnersTeaser() {
         </div>
         <Link
           href="/partners"
-          className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-royal-violet transition-colors"
+          className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-royal-violet transition-colors"
         >
           View All Partners
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

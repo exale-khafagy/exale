@@ -33,12 +33,12 @@ export default async function ServicesPage() {
   const c = contentMap(blocks);
 
   return (
-    <div className="max-w-6xl mx-auto py-12 md:py-24 px-4 sm:px-6">
-      <div className="text-center mb-16">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3 text-gray-900 tracking-tight">
+    <div className="max-w-6xl mx-auto py-16 md:py-28 px-4 sm:px-6 lg:px-8">
+      <div className="text-center mb-20">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-gray-900 tracking-tight leading-[1.12]">
           {c.services_headline ?? 'Our Services'}
         </h1>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto leading-relaxed">
+        <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-[1.7]">
           {c.services_intro ?? 'We provide tailored solutions to ensure your business achieves independence and sustained growth.'}
         </p>
       </div>
@@ -46,7 +46,7 @@ export default async function ServicesPage() {
         {SERVICES.map((s) => (
           <div
             key={s.title}
-            className="hover-card bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100"
+            className="hover-card bg-white p-6 sm:p-8 rounded-2xl shadow-card border border-gray-100/90 hover:border-gray-200"
           >
             <div className="w-14 h-14 bg-royal-violet/10 rounded-xl flex items-center justify-center mb-6 text-2xl">
               {s.icon}
@@ -60,8 +60,8 @@ export default async function ServicesPage() {
           </div>
         ))}
       </div>
-      <div className="mt-16 text-center">
-        <Link href="/apply" className="btn-primary inline-block px-8 py-3">
+      <div className="mt-20 text-center">
+        <Link href="/apply" className="btn-primary inline-flex items-center gap-2 px-8 py-4">
           Start Your Journey
         </Link>
       </div>

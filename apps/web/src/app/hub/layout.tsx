@@ -204,11 +204,11 @@ function HubLayoutContent({
 
               {/* Sidebar - fixed overlay on mobile, static on desktop */}
               <aside
-                className={`fixed lg:relative inset-y-0 left-0 z-40 w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-300 dark:bg-gray-900 flex flex-col transform transition-transform duration-200 ease-out ${
+                className={`fixed lg:relative inset-y-0 left-0 z-40 w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col transform transition-transform duration-200 ease-out shadow-lg lg:shadow-none ${
                   sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
                 }`}
               >
-                <div className="p-6 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
                   <Link href={isDashboardSubdomain ? '/' : '/hub'} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
                     <Image
                       src="/images/exale-logo.png"
@@ -242,7 +242,7 @@ function HubLayoutContent({
                         key={item.hub}
                         href={href}
                         onClick={() => setSidebarOpen(false)}
-                        className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px] flex items-center ${
+                        className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors min-h-[44px] flex items-center ${
                           isActive
                             ? 'bg-royal-violet/10 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
                             : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -256,7 +256,7 @@ function HubLayoutContent({
               </aside>
 
               <div className="flex-1 flex flex-col min-w-0">
-                <header className="h-16 border-b border-gray-200 dark:border-gray-700 bg-gray-300 dark:bg-gray-900 flex items-center justify-between px-4 sm:px-6 gap-4">
+                <header className="h-16 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between px-4 sm:px-6 gap-4">
                   <button
                     type="button"
                     onClick={() => setSidebarOpen(true)}
@@ -306,7 +306,7 @@ function HubLayoutContent({
                     <UserButton afterSignOutUrl={SITE_URL} />
                   </div>
                 </header>
-                <main className="flex-1 p-4 sm:p-6 overflow-auto bg-gray-50 dark:bg-gray-900">{children}</main>
+                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gray-50 dark:bg-gray-900">{children}</main>
               </div>
             </div>
           </>

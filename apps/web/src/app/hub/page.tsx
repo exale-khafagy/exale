@@ -84,15 +84,15 @@ export default function HubPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard Overview</h1>
-        <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's what's happening with your website.</p>
+      <div className="mb-10">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Dashboard Overview</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">Welcome back! Here's what's happening with your website.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
         <Link
           href={inboxPath}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-royal-violet/50 transition-all"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-card hover:shadow-card-hover hover:border-royal-violet/40 transition-all duration-200"
         >
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -132,7 +132,7 @@ export default function HubPage() {
 
         <Link
           href={applyPath}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-royal-violet/50 transition-all"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-card hover:shadow-card-hover hover:border-royal-violet/40 transition-all duration-200"
         >
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -169,7 +169,7 @@ export default function HubPage() {
 
         <Link
           href={cmsPath}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-royal-violet/50 transition-all"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-card hover:shadow-card-hover hover:border-royal-violet/40 transition-all duration-200"
         >
           <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">Content Management</h3>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">—</p>
@@ -178,7 +178,7 @@ export default function HubPage() {
 
         <Link
           href={adminsPath}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-lg hover:border-royal-violet/50 transition-all"
+          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-card hover:shadow-card-hover hover:border-royal-violet/40 transition-all duration-200"
         >
           <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">Admin Users</h3>
           <p className="text-3xl font-bold text-gray-900 dark:text-white">—</p>

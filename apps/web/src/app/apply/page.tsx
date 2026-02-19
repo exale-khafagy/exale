@@ -51,17 +51,17 @@ export default function ApplyPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-12 md:py-24 px-4 sm:px-6">
+    <div className="max-w-2xl mx-auto py-16 md:py-28 px-4 sm:px-6 lg:px-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-12"
+        className="text-center mb-14"
       >
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight leading-[1.12]">
           Let&apos;s build something great.
         </h1>
-        <p className="text-gray-600 text-lg leading-relaxed">
+        <p className="text-gray-600 text-base md:text-lg leading-[1.7]">
           Curious to learn more about how Exale can support your business? Do you have an idea
           you&apos;d like to discuss? We&apos;re eager to connect with you, understand your vision,
           and explore how we can embark on this journey together.
@@ -72,7 +72,7 @@ export default function ApplyPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
         onSubmit={handleSubmit}
-        className="glass-panel p-6 sm:p-8 md:p-10 rounded-3xl space-y-5"
+        className="glass-panel p-6 sm:p-8 md:p-10 rounded-2xl space-y-5"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <input

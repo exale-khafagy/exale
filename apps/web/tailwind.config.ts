@@ -29,8 +29,14 @@ const config: Config = {
       boxShadow: {
         'glow-violet': '0 0 40px rgba(106, 77, 255, 0.25)',
         'glow-violet-lg': '0 0 60px rgba(106, 77, 255, 0.3)',
-        'glass': '0 4px 24px -4px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(255, 255, 255, 0.4) inset',
-        'glass-hover': '0 12px 40px -8px rgba(106, 77, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.5) inset',
+        'glass': '0 2px 12px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(255, 255, 255, 0.5) inset',
+        'glass-hover': '0 12px 40px -8px rgba(106, 77, 255, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.6) inset',
+        'card': '0 1px 3px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+        'card-hover': '0 8px 30px -6px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04)',
+      },
+      borderRadius: {
+        'panel': '1.25rem',
+        'button': '0.75rem',
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
