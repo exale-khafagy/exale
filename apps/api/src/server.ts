@@ -26,6 +26,7 @@ async function getApp() {
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+      optionsSuccessStatus: 204,
     });
     await app.init();
   }

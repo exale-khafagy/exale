@@ -28,6 +28,7 @@ async function bootstrap() {
     'https://www.exale.net',
     'https://hub.exale.net',
     'https://api.exale.net',
+    'https://dashboard.exale.net',
   ];
   const origins =
     process.env.NODE_ENV === 'development'
@@ -38,6 +39,7 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    optionsSuccessStatus: 204,
   });
   const port = process.env.PORT ?? 3002;
   await app.listen(port);
