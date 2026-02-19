@@ -20,19 +20,12 @@ async function getApp() {
     const envOrigins = process.env.CORS_ORIGIN?.split(',')
       .map((o) => o.trim())
       .filter(Boolean);
-    const allowed = new Set([...requiredOrigins, ...(envOrigins ?? [])]);
+    const origins = [...new Set([...(envOrigins ?? []), ...requiredOrigins])];
     app.enableCors({
-      origin: (origin, cb) => {
-        if (!origin || allowed.has(origin)) {
-          cb(null, origin || true);
-        } else {
-          cb(null, false);
-        }
-      },
+      origin: origins.length ? origins : requiredOrigins,
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
-      optionsSuccessStatus: 204,
     });
     await app.init();
   }
