@@ -104,8 +104,8 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop nav - hidden on mobile */}
-        <nav className="hidden lg:flex items-center gap-4 sm:gap-6 md:gap-8" aria-label="Main navigation">
+        {/* Nav - visible from md up, hamburger below */}
+        <nav className="hidden md:flex items-center gap-4 lg:gap-6" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}
@@ -113,8 +113,8 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Desktop auth - Sign In, or Dashboard + account menu when signed in */}
-        <div className="hidden lg:flex items-center gap-4 shrink-0">
+        {/* Auth - Sign In or Dashboard + UserButton when signed in */}
+        <div className="hidden md:flex items-center gap-4 shrink-0">
           {!isLoaded ? (
             <Link href="/sign-in" className={linkClass}>
               Sign In
@@ -138,11 +138,11 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu button - visible when nav is hidden */}
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="lg:hidden p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors"
+          className="md:hidden p-2.5 -mr-2.5 text-white hover:text-white/90 bg-white/10 hover:bg-white/15 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Open menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,12 +155,12 @@ export function Header() {
       {mobileMenuOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 z-[99] lg:hidden"
+            className="fixed inset-0 bg-black/50 z-[99] md:hidden"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden
           />
           <div
-            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark border-l border-white/[0.08] z-[101] flex flex-col shadow-xl"
+            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark border-l border-white/[0.08] z-[101] flex flex-col shadow-xl md:hidden"
             role="dialog"
             aria-label="Mobile navigation"
           >
