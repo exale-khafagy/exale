@@ -50,6 +50,8 @@ Add these in Vercel → Project → Settings → Environment Variables:
 | **Build Command** | Ignored when `vercel.json` has `builds`; the build runs from `vercel.json` |
 | **Include files outside the root directory** | **OFF** (must be disabled or API returns 404) |
 
+The API uses **Vercel serverless functions** (no legacy `builds`): `api/[[...path]].js` loads the built Nest app; `vercel.json` rewrites `/*` → `/api/*` so `/health` etc. work at the root. The build command runs normally and produces `dist/`.
+
 ### Environment Variables
 
 | Variable | Required | Example |
