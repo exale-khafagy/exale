@@ -1,17 +1,4 @@
 {
   "version": 2,
-  "buildCommand": "npm run db:generate && npm run build",
-  "builds": [
-    {
-      "src": "dist/src/serverless.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/src/serverless.js",
-      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-    }
-  ]
+  "buildCommand": "npm run db:generate && npm run build"
 }

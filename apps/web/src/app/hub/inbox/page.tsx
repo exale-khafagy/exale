@@ -43,8 +43,13 @@ export default function InboxContactPage() {
         setSubmissions(data);
         setError(null);
       } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Failed to load.';
         setError(
-          e instanceof Error && e.message === 'UNAUTHORIZED' ? "You don't have access." : 'Failed to load.',
+          msg === 'UNAUTHORIZED'
+            ? "You don't have access."
+            : msg.startsWith('Failed to fetch')
+              ? `API error: ${msg}`
+              : msg,
         );
       } finally {
         setLoading(false);
@@ -254,7 +259,14 @@ export default function InboxContactPage() {
               setSubmissions(data);
               setError(null);
             } catch (e) {
-              setError(e instanceof Error && e.message === 'UNAUTHORIZED' ? "You don't have access." : 'Failed to load.');
+              const msg = e instanceof Error ? e.message : 'Failed to load.';
+              setError(
+                msg === 'UNAUTHORIZED'
+                  ? "You don't have access."
+                  : msg.startsWith('Failed to fetch')
+                    ? `API error: ${msg}`
+                    : msg,
+              );
             } finally {
               setLoading(false);
             }
