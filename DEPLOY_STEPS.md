@@ -95,7 +95,7 @@ Go to **Settings** → **Environment Variables** and add:
 | Variable | Value | Notes |
 |----------|-------|-------|
 | `DATABASE_URL` | `mongodb+srv://AhmedKhafagy:R08a07N99a@exale-prod.hlqsatd.mongodb.net/exale?retryWrites=true&w=majority` | Your MongoDB production cluster |
-| `CORS_ORIGIN` | `https://exale.net,https://www.exale.net,https://hub.exale.net,https://api.exale.net` | Comma-separated, no spaces; required for dashboard to call API |
+| `CORS_ORIGIN` | `https://exale.net,https://www.exale.net,https://hub.exale.net,https://dashboard.exale.net` | Optional; API always allows these + your list. Include dashboard if you use that subdomain. |
 | `CLERK_SECRET_KEY` | `sk_...` | From Clerk (Step 2.2) |
 | `NODE_ENV` | `production` | Optional but recommended |
 
@@ -152,7 +152,8 @@ Go to **Settings** → **Environment Variables** and add:
 2. Click **"Add Domain"** and add:
    - `exale.net`
    - `www.exale.net`
-   - `hub.exale.net` (optional, for dashboard subdomain)
+   - `dashboard.exale.net` (optional — same app, rewrites to `/hub`; add CNAME in GoDaddy)
+   - `hub.exale.net` (optional, alternative dashboard subdomain)
 3. **Don't configure DNS yet** — we'll do that in GoDaddy next
 
 ---
@@ -257,11 +258,26 @@ npx prisma db seed
 - Check DNS propagation: [whatsmydns.net](https://www.whatsmydns.net)
 - Verify records match exactly what Vercel shows
 
-### API Returns 404 at api.exale.net?
+### API Returns 404 at api.exale.net? — Do this first
 - **Domain must point to the API project:** In Vercel, `api.exale.net` must be added under the **API** project (Root Directory: `apps/api`), not the Web project. If it’s on the Web project, you’ll get a 404.
 - After a successful deploy, opening `https://api.exale.net` should return JSON (e.g. `{"api":"exale","status":"ok",...}`). `https://api.exale.net/health` should return `{"status":"ok","timestamp":"..."}`.
 - Set `CORS_ORIGIN` in the API project to include `https://exale.net`, `https://www.exale.net`, and `https://hub.exale.net` (comma-separated) so the dashboard can call the API.
 - Check API build logs in Vercel → API project → Deployments.
+
+**Quick checklist:** (1) **Web** project → Domains: remove `api.exale.net` if present. (2) **API** project → Domains: add `api.exale.net`. (3) API project → Deployments: confirm latest build succeeded. (4) GoDaddy: CNAME for `api` must point to the **API** project target, not the Web project.
+
+**Domain is on API project but still 404?** (1) **API** project → **Deployments** → open the latest deployment → open the **Building** log. Confirm the build finished successfully (no red errors). If `npm run db:generate` or `npm run build` failed, fix the cause (e.g. add `DATABASE_URL` in Vercel env, fix Prisma). (2) **Settings** → **General** → confirm **Root Directory** is `apps/api`. (3) **Redeploy**: Deployments → ⋮ on latest → **Redeploy** and check **Clear build cache**, then redeploy. After a successful build, `https://api.exale.net` and `https://api.exale.net/health` should return JSON.
+
+### 404 at dashboard.exale.net?
+- **Add the domain to the Web project:** In Vercel → **Web** project → Settings → Domains, add `dashboard.exale.net`. The 404 usually means this host isn’t assigned to any project (or is on the wrong one).
+- **DNS:** In GoDaddy, add a **CNAME** for `dashboard` pointing to the same value as `exale.net` (e.g. `cname.vercel-dns.com`). Wait a few minutes for DNS to update.
+- **Alternative:** Use **https://exale.net/hub** for the dashboard; it’s the same app and doesn’t require the subdomain.
+
+### Dashboard shows "Failed to load applications" or "API error"?
+- **Web project:** Set `NEXT_PUBLIC_API_URL` to `https://api.exale.net` (and redeploy so the new value is baked in).
+- **API project:** CORS now always allows `https://dashboard.exale.net` and `https://hub.exale.net`; ensure the API deployment succeeded and `CLERK_SECRET_KEY` is set so the API can verify dashboard tokens.
+- **Admin access:** Your Clerk user must be added as an admin (run `npm run db:add-admin <clerk-user-id> <email>` in `apps/api` with `DATABASE_URL` set). Otherwise the API returns 401 and the dashboard shows "You don't have access."
+- If the UI shows e.g. "API error: Failed to fetch (404)", the API route or deployment is wrong; if "(500)", check API logs and env (e.g. `DATABASE_URL`, Prisma).
 
 ### Authentication Not Working?
 - Verify Clerk keys are correct

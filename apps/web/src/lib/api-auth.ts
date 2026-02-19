@@ -12,7 +12,7 @@ export async function apiGet<T>(path: string, token: string): Promise<T> {
         ? 'Too many requests. Please wait a moment and try again.'
         : res.status === 500
           ? 'SERVER_ERROR'
-          : 'Failed to fetch';
+          : `Failed to fetch (${res.status})`;
     const err = new Error(message) as Error & { status?: number };
     err.status = res.status;
     throw err;

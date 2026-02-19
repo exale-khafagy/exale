@@ -4,24 +4,25 @@ import type { INestApplication } from '@nestjs/common';
 
 let app: INestApplication;
 
+const requiredOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://dashboard.localhost:3000',
+  'https://exale.net',
+  'https://www.exale.net',
+  'https://hub.exale.net',
+  'https://dashboard.exale.net',
+];
+
 async function getApp() {
   if (!app) {
     app = await NestFactory.create(AppModule);
-    const corsOrigins = process.env.CORS_ORIGIN?.split(',')
+    const envOrigins = process.env.CORS_ORIGIN?.split(',')
       .map((o) => o.trim())
       .filter(Boolean);
+    const origins = [...new Set([...(envOrigins ?? []), ...requiredOrigins])];
     app.enableCors({
-      origin: corsOrigins?.length
-        ? corsOrigins
-        : [
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-            'http://dashboard.localhost:3000',
-            'https://exale.net',
-            'https://www.exale.net',
-            'https://hub.exale.net',
-            'https://dashboard.exale.net',
-          ],
+      origin: origins.length ? origins : requiredOrigins,
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],

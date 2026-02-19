@@ -44,10 +44,13 @@ export default function InboxApplyPage() {
         setSubmissions(data);
         setError(null);
       } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Failed to load.';
         setError(
-          e instanceof Error && e.message === 'UNAUTHORIZED'
+          msg === 'UNAUTHORIZED'
             ? "You don't have access."
-            : 'Failed to load.',
+            : msg.startsWith('Failed to fetch')
+              ? `API error: ${msg}`
+              : msg,
         );
       } finally {
         setLoading(false);
@@ -258,10 +261,13 @@ export default function InboxApplyPage() {
               setSubmissions(data);
               setError(null);
             } catch (e) {
+              const msg = e instanceof Error ? e.message : 'Failed to load.';
               setError(
-                e instanceof Error && e.message === 'UNAUTHORIZED'
+                msg === 'UNAUTHORIZED'
                   ? "You don't have access."
-                  : 'Failed to load.',
+                  : msg.startsWith('Failed to fetch')
+                    ? `API error: ${msg}`
+                    : msg,
               );
             } finally {
               setLoading(false);
