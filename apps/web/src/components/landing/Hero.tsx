@@ -57,15 +57,15 @@ export function Hero() {
         initial={{ opacity: 1 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.6 }}
-        className="absolute bottom-12 z-10"
+        className="absolute bottom-8 sm:bottom-12 z-10"
       >
         <Link
           href="#about-cta"
-          className="group flex flex-col items-center gap-2 text-white/40 hover:text-white/80 transition-colors duration-300"
-          aria-label="Scroll down"
+          className="group flex flex-col items-center gap-2 text-white/60 hover:text-white transition-colors duration-300"
+          aria-label="Scroll down to content"
         >
-          <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
-          <span className="flex h-10 w-6 items-center justify-center rounded-full border-2 border-current opacity-60 group-hover:opacity-100 transition-opacity">
+          <span className="text-xs uppercase tracking-[0.25em]">Scroll for more</span>
+          <span className="flex h-10 w-6 items-center justify-center rounded-full border-2 border-current opacity-80 group-hover:opacity-100 transition-opacity">
             <span className="animate-bounce block">
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />

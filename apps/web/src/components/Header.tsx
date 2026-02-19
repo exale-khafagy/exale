@@ -30,9 +30,6 @@ export function Header() {
   const { getToken, isLoaded } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const displayName = user
-    ? [user.firstName, user.lastName].filter(Boolean).join(' ') || user.primaryEmailAddress?.emailAddress || 'Profile'
-    : 'Profile';
 
   // Fallback: check if user is founder by email (client-side check)
   const FOUNDER_EMAIL = 'khafagy.ahmedibrahim@gmail.com';
@@ -116,8 +113,8 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Desktop auth - hidden on mobile */}
-        <div className="hidden lg:flex items-center gap-6 shrink-0">
+        {/* Desktop auth - Sign In, or Dashboard + account menu when signed in */}
+        <div className="hidden lg:flex items-center gap-4 shrink-0">
           {!isLoaded ? (
             <Link href="/sign-in" className={linkClass}>
               Sign In
@@ -135,16 +132,7 @@ export function Header() {
                     Dashboard
                   </Link>
                 )}
-                <Link
-                  href="/profile"
-                  className={`${linkClass} max-w-[140px] truncate`}
-                  title={displayName}
-                >
-                  {displayName}
-                </Link>
-                <div>
-                  <UserButton afterSignOutUrl="/" />
-                </div>
+                <UserButton afterSignOutUrl="/" />
               </SignedIn>
             </>
           )}
@@ -231,14 +219,6 @@ export function Header() {
                         Dashboard
                       </Link>
                     )}
-                    <Link
-                      href="/profile"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="block py-4 px-4 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 transition-colors min-h-[44px] flex items-center"
-                      title={displayName}
-                    >
-                      {displayName}
-                    </Link>
                     <div className="py-4 px-4 flex items-center min-h-[44px]">
                       <UserButton afterSignOutUrl="/" />
                     </div>
