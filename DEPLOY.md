@@ -45,9 +45,10 @@ Add these in Vercel → Project → Settings → Environment Variables:
 
 | Setting | Value |
 |---------|-------|
-| **Root Directory** | `apps/api` |
+| **Root Directory** | `apps/api` (required) |
 | **Framework Preset** | Other |
-| **Build Command** | `npm run db:generate && npm run build` |
+| **Build Command** | Ignored when `vercel.json` has `builds`; the build runs from `vercel.json` |
+| **Include files outside the root directory** | **OFF** (must be disabled or API returns 404) |
 
 ### Environment Variables
 
