@@ -44,7 +44,7 @@ export function PublicLayout({ children }: { children: React.ReactNode }) {
         <main
           id="main-content"
           ref={scrollRef}
-          className="h-screen overflow-y-auto overflow-x-hidden pt-20 bg-stone-100"
+          className="h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory pt-20 bg-stone-100"
         >
           {children}
           <Footer />

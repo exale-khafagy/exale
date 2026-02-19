@@ -104,8 +104,8 @@ export function Header() {
           />
         </Link>
 
-        {/* Nav - visible from md up, hamburger below */}
-        <nav className="hidden md:flex items-center gap-4 lg:gap-6" aria-label="Main navigation">
+        {/* Desktop nav - visible from lg (1024px) up */}
+        <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}
@@ -113,8 +113,8 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Auth - Sign In or Dashboard + UserButton when signed in */}
-        <div className="hidden md:flex items-center gap-4 shrink-0">
+        {/* Desktop auth */}
+        <div className="hidden lg:flex items-center gap-4 shrink-0">
           {!isLoaded ? (
             <Link href="/sign-in" className={linkClass}>
               Sign In
@@ -138,11 +138,11 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile menu button - visible when nav is hidden */}
+        {/* Mobile menu button - visible below lg */}
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="md:hidden p-2.5 -mr-2.5 text-white hover:text-white/90 bg-white/10 hover:bg-white/15 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="lg:hidden p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Open menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,12 +155,12 @@ export function Header() {
       {mobileMenuOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 z-[99] md:hidden"
+            className="fixed inset-0 bg-black/50 z-[99] lg:hidden"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden
           />
           <div
-            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark border-l border-white/[0.08] z-[101] flex flex-col shadow-xl md:hidden"
+            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] bg-exale-dark border-l border-white/[0.08] z-[101] flex flex-col shadow-xl lg:hidden"
             role="dialog"
             aria-label="Mobile navigation"
           >

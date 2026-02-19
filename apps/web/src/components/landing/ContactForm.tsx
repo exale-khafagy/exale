@@ -54,7 +54,7 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
   return (
     <section
       id="contact"
-      className="min-h-screen flex flex-col items-center justify-center py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden bg-stone-100"
+      className="h-screen min-h-screen snap-start flex flex-col items-center justify-center py-16 sm:py-24 px-4 sm:px-6 relative overflow-hidden bg-stone-100"
     >
       <div
         className="absolute inset-0 z-0"
