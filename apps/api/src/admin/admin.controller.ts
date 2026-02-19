@@ -23,6 +23,12 @@ export class AdminController {
     return this.admin.findAll();
   }
 
+  @Get('lookup/:email')
+  @UseGuards(AdminGuard)
+  async lookupByEmail(@Param('email') email: string) {
+    return this.admin.lookupByEmail(decodeURIComponent(email));
+  }
+
   @Post()
   @UseGuards(AdminGuard)
   async create(

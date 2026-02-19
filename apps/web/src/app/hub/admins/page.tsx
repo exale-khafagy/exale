@@ -52,7 +52,7 @@ export default function AdminsPage() {
     if (!token) return;
     try {
       const profile = await apiGet<{ clerkId: string; email: string } | null>(
-        `/profile/by-email/${encodeURIComponent(email.trim())}`,
+        `/admin/lookup/${encodeURIComponent(email.trim())}`,
         token,
       );
       if (profile) {
@@ -91,8 +91,9 @@ export default function AdminsPage() {
         return;
       }
       if (!res.ok) {
-        const err = await res.json();
-        setMessage(err.message || 'Failed to add admin');
+        const err = await res.json().catch(() => ({}));
+        const msg = Array.isArray(err.message) ? err.message[0] : err.message;
+        setMessage(msg || 'Failed to add admin');
         return;
       }
       const newAdmin = await res.json();
