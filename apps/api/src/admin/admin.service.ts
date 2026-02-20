@@ -1,10 +1,37 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { createClerkClient } from '@clerk/backend';
+import { AdminRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+const FOUNDER_EMAIL = 'khafagy.ahmedibrahim@gmail.com';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Returns admin by clerkId, or if not in DB, creates admin for founder email (from Profile or Clerk lookup) and returns it. */
+  async findAdminOrFounder(clerkId: string) {
+    let admin = await this.prisma.admin.findUnique({ where: { clerkId } });
+    if (admin) return admin;
+    let email: string | null = null;
+    const profile = await this.prisma.profile.findUnique({ where: { clerkId } });
+    if (profile?.email?.toLowerCase() === FOUNDER_EMAIL) {
+      email = profile.email;
+    }
+    if (!email) {
+      const founder = await this.lookupByEmail(FOUNDER_EMAIL);
+      if (founder?.clerkId === clerkId) email = founder.email;
+    }
+    if (email) {
+      admin = await this.prisma.admin.upsert({
+        where: { clerkId },
+        create: { clerkId, email, role: AdminRole.ADMIN },
+        update: { email, role: AdminRole.ADMIN },
+      });
+      return admin;
+    }
+    return null;
+  }
 
   /** Look up user by email: first in our Profile table, then in Clerk. Returns { clerkId, email } or null. */
   async lookupByEmail(email: string): Promise<{ clerkId: string; email: string } | null> {

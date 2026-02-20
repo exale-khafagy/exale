@@ -9,6 +9,8 @@ import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminRole } from '@prisma/client';
 
+const FOUNDER_EMAIL = 'khafagy.ahmedibrahim@gmail.com';
+
 @Injectable()
 export class EditorGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
@@ -35,9 +37,22 @@ export class EditorGuard implements CanActivate {
         throw new UnauthorizedException('Invalid token');
       }
 
-      const admin = await this.prisma.admin.findUnique({
+      let admin = await this.prisma.admin.findUnique({
         where: { clerkId },
       });
+
+      if (!admin) {
+        const profile = await this.prisma.profile.findUnique({
+          where: { clerkId },
+        });
+        if (profile?.email?.toLowerCase() === FOUNDER_EMAIL) {
+          admin = await this.prisma.admin.upsert({
+            where: { clerkId },
+            create: { clerkId, email: profile.email, role: AdminRole.ADMIN },
+            update: { email: profile.email, role: AdminRole.ADMIN },
+          });
+        }
+      }
 
       if (!admin) {
         throw new UnauthorizedException('User is not an editor or admin');

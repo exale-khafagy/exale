@@ -289,6 +289,11 @@ npx prisma db seed
 - Check Vercel build logs for CSS compilation errors
 - Verify `globals.css` is imported in `app/layout.tsx`
 
+### Not seeing latest UI changes (header tabs, “Go to exale.net”, etc.)?
+- **Push your code:** Commit and push to the branch Vercel deploys from (e.g. `main`). The live site only updates after a new deployment.
+- **Trigger deploy:** In Vercel → **Web** project → Deployments, confirm the latest deployment is from your push and that the build succeeded.
+- **Hard refresh:** After deploy, do a hard refresh (Ctrl+Shift+R or Cmd+Shift+R) or clear cache so the browser doesn’t serve an old bundle.
+
 ---
 
 ## 📝 Quick Reference

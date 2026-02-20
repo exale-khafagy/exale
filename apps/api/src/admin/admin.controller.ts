@@ -11,7 +11,7 @@ export class AdminController {
   @Get('check')
   @UseGuards(ClerkGuard)
   async checkMe(@Req() req: Request & { clerkId: string }) {
-    const admin = await this.admin.findByClerkId(req.clerkId);
+    const admin = await this.admin.findAdminOrFounder(req.clerkId);
     const isAdmin = !!admin;
     const role = admin?.role ?? (isAdmin ? 'ADMIN' : null);
     return { isAdmin, role };
