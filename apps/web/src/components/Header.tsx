@@ -21,9 +21,6 @@ const navLinks = [
   { href: '/apply', label: 'Apply' },
 ];
 
-const baseLinkClass =
-  'text-xs uppercase tracking-[0.18em] font-semibold text-white/80 hover:text-white transition-all duration-300 whitespace-nowrap';
-
 export function Header() {
   const { user } = useUser();
   const { getToken, isLoaded } = useAuth();
@@ -62,16 +59,13 @@ export function Header() {
     checkAdmin();
   }, [user, getToken, isFounderEmail]);
 
-  const userInitials = [user?.firstName, user?.lastName]
-    .map((n) => n?.[0])
-    .filter(Boolean)
-    .join('') || '?';
+  const linkClass = 'text-xs uppercase tracking-[0.18em] font-semibold text-white/85 hover:text-white transition-colors';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-exale-dark/95 backdrop-blur-xl border-b border-white/[0.08] shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 min-h-[64px]">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-exale-dark/95 backdrop-blur-md border-b border-white/[0.06]">
+      <div className="max-w-6xl mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* Logo */}
+        {/* 1. LOGO (Always Visible) */}
         <Link
           href="/"
           className="shrink-0 transition-opacity hover:opacity-80 z-50"
@@ -88,54 +82,55 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop Navigation (Strictly visible on 'lg' screens and up) */}
-        <nav className="hidden lg:flex flex-1 items-center justify-end gap-8" aria-label="Main navigation">
-          <div className="flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className={`${baseLinkClass} py-2`}>
-                {link.label}
-              </Link>
-            ))}
-          </div>
+        {/* 2. DESKTOP VIEW (Visible ONLY on md: 768px and up) */}
+        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className={linkClass}>
+              {link.label}
+            </Link>
+          ))}
 
-          <div className="flex items-center border-l border-white/20 pl-8 shrink-0 h-8">
-            {!isLoaded ? (
-              <div className="w-16 h-4 bg-white/10 animate-pulse rounded" />
-            ) : (
-              <>
-                <SignedOut>
-                  <SignInButton mode="redirect" forceRedirectUrl="/">
-                    <button className={`${baseLinkClass} py-2`}>Sign In</button>
-                  </SignInButton>
-                </SignedOut>
+          {/* Vertical Divider */}
+          <div className="h-6 w-px bg-white/20 mx-2"></div>
 
-                <SignedIn>
-                  {(isAdmin || isFounderEmail) && (
-                    <Link href="/hub" className={`${baseLinkClass} mr-6 py-2`}>
-                      Dashboard
-                    </Link>
-                  )}
-                  <Link
-                    href="/profile"
-                    className="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 border border-white/20 overflow-hidden transition-all hover:ring-2 hover:ring-white/40 hover:bg-white/20 shrink-0"
-                  >
-                    {user?.imageUrl ? (
-                      <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-white text-xs font-bold uppercase tracking-wider">{userInitials}</span>
-                    )}
+          {!isLoaded ? (
+            <div className="w-16 h-4 bg-white/10 animate-pulse rounded" />
+          ) : (
+            <>
+              <SignedOut>
+                <SignInButton mode="redirect" forceRedirectUrl="/">
+                  <button className={linkClass}>Sign In</button>
+                </SignInButton>
+              </SignedOut>
+
+              <SignedIn>
+                {(isAdmin || isFounderEmail) && (
+                  <Link href="/hub" className={linkClass}>
+                    Dashboard
                   </Link>
-                </SignedIn>
-              </>
-            )}
-          </div>
+                )}
+                <Link
+                  href="/profile"
+                  className="w-8 h-8 rounded-full overflow-hidden border border-white/20 hover:border-white/60 transition-colors"
+                >
+                  {user?.imageUrl ? (
+                    <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-white/20 flex items-center justify-center text-white text-xs font-bold">
+                      {[user?.firstName, user?.lastName].map((n) => n?.[0]).filter(Boolean).join('') || '?'}
+                    </div>
+                  )}
+                </Link>
+              </SignedIn>
+            </>
+          )}
         </nav>
 
-        {/* Mobile Hamburger Toggle Button (Strictly visible on smaller screens) */}
+        {/* 3. MOBILE TOGGLE BUTTON (Visible ONLY below 768px) */}
         <button
-          className="block lg:hidden p-2 text-white/80 hover:text-white transition-colors z-50"
+          className="md:hidden p-2 -mr-2 text-white z-50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label="Toggle Menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isMobileMenuOpen ? (
@@ -147,32 +142,28 @@ export function Header() {
         </button>
       </div>
 
-      {/* Mobile Dropdown Menu */}
-      <div 
-        className={`lg:hidden absolute top-full left-0 right-0 bg-exale-dark/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300 ease-in-out overflow-hidden ${
-          isMobileMenuOpen ? 'max-h-[500px] opacity-100 py-4 shadow-2xl' : 'max-h-0 opacity-0 py-0'
-        }`}
-      >
-        <div className="flex flex-col px-4 gap-4">
+      {/* 4. MOBILE DROPDOWN MENU (Visible ONLY when open, below 768px) */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-exale-dark/95 backdrop-blur-md border-b border-white/10 shadow-2xl flex flex-col p-4 z-40">
           {navLinks.map((link) => (
             <Link 
               key={link.href} 
               href={link.href} 
-              className={`${baseLinkClass} block py-2 border-b border-white/5`}
+              className={`${linkClass} py-4 border-b border-white/5`}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.label}
             </Link>
           ))}
 
-          <div className="pt-2 flex items-center justify-between">
+          <div className="py-4">
             {!isLoaded ? (
               <div className="w-16 h-4 bg-white/10 animate-pulse rounded" />
             ) : (
               <>
                 <SignedOut>
                   <SignInButton mode="redirect" forceRedirectUrl="/">
-                    <button className={`${baseLinkClass} w-full text-left py-2`}>Sign In</button>
+                    <button className={`${linkClass} w-full text-left py-2`}>Sign In</button>
                   </SignInButton>
                 </SignedOut>
 
@@ -180,7 +171,7 @@ export function Header() {
                   {(isAdmin || isFounderEmail) && (
                     <Link 
                       href="/hub" 
-                      className={`${baseLinkClass} py-2`}
+                      className={`${linkClass} block py-3 mb-2`}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Dashboard
@@ -188,26 +179,26 @@ export function Header() {
                   )}
                   <Link
                     href="/profile"
-                    className="flex items-center gap-3 py-2 group"
+                    className="flex items-center gap-3 py-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 border border-white/20 overflow-hidden group-hover:ring-2 group-hover:ring-white/40">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20">
                       {user?.imageUrl ? (
                         <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-white text-xs font-bold uppercase tracking-wider">{userInitials}</span>
+                        <div className="w-full h-full bg-white/20 flex items-center justify-center text-white text-xs font-bold">
+                          {[user?.firstName, user?.lastName].map((n) => n?.[0]).filter(Boolean).join('') || '?'}
+                        </div>
                       )}
                     </div>
-                    <span className="text-sm font-semibold text-white/80 group-hover:text-white transition-colors">
-                      Profile
-                    </span>
+                    <span className="text-sm font-semibold text-white/85">Profile</span>
                   </Link>
                 </SignedIn>
               </>
             )}
           </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
