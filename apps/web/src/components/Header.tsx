@@ -105,8 +105,8 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop nav - visible from md (768px) up */}
-        <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
+        {/* Desktop nav - visible from sm (640px) up */}
+        <nav className="hidden sm:flex items-center gap-6 lg:gap-8" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass}>
               {link.label}
@@ -115,7 +115,7 @@ export function Header() {
         </nav>
 
         {/* Desktop auth */}
-        <div className="hidden md:flex items-center gap-4 shrink-0">
+        <div className="hidden sm:flex items-center gap-4 shrink-0">
           {!isLoaded ? (
             <Link href="/sign-in" className={linkClass}>
               Sign In
@@ -139,11 +139,11 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile menu button - visible below md */}
+        {/* Mobile menu button - visible below sm */}
         <button
           type="button"
           onClick={() => setMobileMenuOpen(true)}
-          className="md:hidden p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="sm:hidden p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Open menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,12 +157,12 @@ export function Header() {
         createPortal(
           <>
             <div
-              className="fixed inset-0 bg-black/50 z-[9998] md:hidden"
+              className="fixed inset-0 bg-black/50 z-[9998] sm:hidden"
               onClick={() => setMobileMenuOpen(false)}
               aria-hidden
             />
             <div
-              className="fixed top-0 right-0 bottom-0 w-[min(320px,85vw)] max-h-[100dvh] z-[9999] flex flex-col md:hidden shadow-2xl"
+              className="fixed top-0 right-0 bottom-0 w-[min(320px,85vw)] max-h-[100dvh] z-[9999] flex flex-col sm:hidden shadow-2xl"
               style={{ backgroundColor: '#0E0E12' }}
               role="dialog"
               aria-label="Mobile navigation"

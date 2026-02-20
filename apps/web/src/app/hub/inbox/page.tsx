@@ -240,6 +240,11 @@ export default function InboxContactPage() {
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <h2 className="text-red-600 dark:text-red-400 font-semibold mb-2">Failed to load submissions</h2>
           <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">{error}</p>
+          {error === "You don't have access." && (
+            <p className="text-gray-600 dark:text-gray-400 text-xs mt-2">
+              Site owner? Add your Clerk user as an admin: in <code className="bg-black/10 dark:bg-white/10 px-1 rounded">apps/api</code> run <code className="bg-black/10 dark:bg-white/10 px-1 rounded">npm run db:add-admin &lt;clerk-user-id&gt; &lt;email&gt;</code> (see DEPLOY_STEPS.md).
+            </p>
+          )}
           {error !== "You don't have access." && (
             <div className="text-gray-600 dark:text-gray-400 text-xs space-y-1">
               <p>• Make sure the API server is running at {API_URL}</p>
