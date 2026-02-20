@@ -11,6 +11,7 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { apiGet } from '@/lib/api-auth';
 
 const navLinks = [
@@ -151,84 +152,93 @@ export function Header() {
         </button>
       </div>
 
-      {/* Mobile menu overlay */}
-      {mobileMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/50 z-[99] md:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden
-          />
-          <div
-            className="fixed top-0 right-0 h-full w-[min(320px,85vw)] max-h-[100dvh] bg-exale-dark backdrop-blur-xl border-l border-white/[0.06] z-[101] flex flex-col shadow-2xl md:hidden"
-            role="dialog"
-            aria-label="Mobile navigation"
-          >
-            <div className="flex items-center justify-between p-4 border-b border-white/[0.08] shrink-0">
-              <span className="text-white/70 text-xs uppercase tracking-[0.2em] font-semibold">Menu</span>
-              <button
-                type="button"
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors"
-                aria-label="Close menu"
+      {/* Mobile menu: render in portal so it's not clipped by header stacking/overflow */}
+      {mobileMenuOpen && typeof document !== 'undefined' &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-[9998] md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-hidden
+            />
+            <div
+              className="fixed top-0 right-0 bottom-0 w-[min(320px,85vw)] max-h-[100dvh] z-[9999] flex flex-col md:hidden shadow-2xl"
+              style={{ backgroundColor: '#0E0E12' }}
+              role="dialog"
+              aria-label="Mobile navigation"
+            >
+              <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
+                <span className="text-white text-xs uppercase tracking-widest font-semibold">Menu</span>
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2.5 -mr-2.5 text-white/80 hover:text-white transition-colors"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <nav
+                className="flex-1 overflow-y-auto p-4 min-h-[50vh]"
+                style={{ backgroundColor: '#0E0E12' }}
+                aria-label="Main navigation"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                <div className="space-y-1">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors min-h-[44px] flex items-center"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+                <div className="border-t border-white/10 my-4" />
+                {!isLoaded ? (
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors min-h-[44px] flex items-center"
+                  >
+                    Sign In
+                  </Link>
+                ) : (
+                  <>
+                    <SignedOut>
+                      <SignInButton mode="redirect" forceRedirectUrl="/">
+                        <button
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="w-full text-left py-4 px-4 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors min-h-[44px] flex items-center"
+                        >
+                          Sign In
+                        </button>
+                      </SignInButton>
+                    </SignedOut>
+                    <SignedIn>
+                      {(isAdmin || isFounderEmail) && (
+                        <Link
+                          href="/hub"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors min-h-[44px] flex items-center"
+                        >
+                          Dashboard
+                        </Link>
+                      )}
+                      <div className="py-4 px-4 flex items-center min-h-[44px]">
+                        <UserButton afterSignOutUrl="/" />
+                      </div>
+                    </SignedIn>
+                  </>
+                )}
+              </nav>
             </div>
-            <nav className="flex-1 min-h-0 overflow-y-auto p-4 space-y-1" aria-label="Main navigation">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white/85 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] flex items-center"
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="border-t border-white/[0.08] my-4" />
-              {!isLoaded ? (
-                <Link
-                  href="/sign-in"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white/85 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] flex items-center"
-                >
-                  Sign In
-                </Link>
-              ) : (
-                <>
-                  <SignedOut>
-                    <SignInButton mode="redirect" forceRedirectUrl="/">
-                      <button
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="w-full text-left py-4 px-4 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/5 transition-colors min-h-[44px] flex items-center"
-                      >
-                        Sign In
-                      </button>
-                    </SignInButton>
-                  </SignedOut>
-                  <SignedIn>
-                    {(isAdmin || isFounderEmail) && (
-                      <Link
-                        href="/hub"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="block py-3.5 px-4 rounded-xl text-sm font-medium text-white/85 hover:text-white hover:bg-white/[0.06] transition-colors min-h-[44px] flex items-center"
-                      >
-                        Dashboard
-                      </Link>
-                    )}
-                    <div className="py-4 px-4 flex items-center min-h-[44px]">
-                      <UserButton afterSignOutUrl="/" />
-                    </div>
-                  </SignedIn>
-                </>
-              )}
-            </nav>
-          </div>
-        </>
-      )}
+          </>,
+          document.body
+        )}
     </header>
   );
 }
