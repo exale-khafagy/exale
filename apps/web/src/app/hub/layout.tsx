@@ -4,7 +4,6 @@ import { SignedIn, SignedOut, RedirectToSignIn, SignOutButton, useAuth, useUser 
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { UserButton } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api-auth';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
@@ -320,7 +319,19 @@ function HubLayoutContent({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </Link>
-                    <UserButton afterSignOutUrl={SITE_URL} />
+                    <Link
+                      href={isDashboardSubdomain ? `${SITE_URL}/profile` : '/profile'}
+                      className="flex items-center gap-2 rounded-full overflow-hidden shrink-0 ml-2 border border-gray-200 dark:border-gray-600 hover:opacity-90 transition-opacity"
+                      aria-label="Profile (sign out from profile page)"
+                    >
+                      {user?.imageUrl ? (
+                        <img src={user.imageUrl} alt="" className="w-8 h-8 rounded-full object-cover" width={32} height={32} />
+                      ) : (
+                        <span className="w-8 h-8 rounded-full bg-royal-violet/20 flex items-center justify-center text-royal-violet text-sm font-semibold">
+                          {[user?.firstName, user?.lastName].map((n) => n?.[0]).filter(Boolean).join('') || '?'}
+                        </span>
+                      )}
+                    </Link>
                   </div>
                 </header>
                 <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-auto bg-gray-50 dark:bg-gray-900">{children}</main>

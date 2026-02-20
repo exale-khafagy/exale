@@ -4,7 +4,6 @@ import {
   SignInButton,
   SignedIn,
   SignedOut,
-  UserButton,
   useAuth,
   useUser,
 } from '@clerk/nextjs';
@@ -108,9 +107,25 @@ export function Header() {
                     Dashboard
                   </Link>
                 )}
-                <span className="shrink-0 pl-1">
-                  <UserButton afterSignOutUrl="/" />
-                </span>
+                <Link
+                  href="/profile"
+                  className="shrink-0 ml-6 pl-6 border-l border-white/20 flex items-center gap-2 min-h-[32px] rounded-full overflow-hidden transition-opacity hover:opacity-90"
+                  aria-label="Go to your profile"
+                >
+                  {user?.imageUrl ? (
+                    <img
+                      src={user.imageUrl}
+                      alt=""
+                      className="w-8 h-8 rounded-full object-cover"
+                      width={32}
+                      height={32}
+                    />
+                  ) : (
+                    <span className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-semibold">
+                      {[user?.firstName, user?.lastName].map((n) => n?.[0]).filter(Boolean).join('') || '?'}
+                    </span>
+                  )}
+                </Link>
               </SignedIn>
             </>
           )}

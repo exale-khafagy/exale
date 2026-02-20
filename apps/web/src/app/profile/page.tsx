@@ -35,6 +35,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     phone: '',
     companyName: '',
@@ -275,6 +276,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Read-only: email & name (not editable) */}
         <div className="glass-panel p-6 rounded-2xl">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Basic info</h2>
           <dl className="space-y-3 text-gray-900">
@@ -289,57 +291,67 @@ export default function ProfilePage() {
           </dl>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <h2 className="text-lg font-semibold text-gray-900">Edit profile</h2>
-          <input
-            type="tel"
-            placeholder="Phone number"
-            value={form.phone}
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="text"
-            placeholder="Company name"
-            value={form.companyName}
-            onChange={(e) => setForm({ ...form, companyName: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="url"
-            placeholder="LinkedIn profile URL"
-            value={form.linkedInUrl}
-            onChange={(e) => setForm({ ...form, linkedInUrl: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="url"
-            placeholder="Twitter / X profile URL"
-            value={form.twitterUrl}
-            onChange={(e) => setForm({ ...form, twitterUrl: e.target.value })}
-            className={inputClass}
-          />
-          <input
-            type="url"
-            placeholder="Instagram profile URL"
-            value={form.instagramUrl}
-            onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })}
-            className={inputClass}
-          />
-          {message && (
-            <p className={`text-sm ${message.includes('updated') ? 'text-green-600' : 'text-red-600'}`}>
-              {message}
-            </p>
+        {/* Editable info: view mode or edit mode */}
+        <div className="glass-panel p-6 rounded-2xl">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Contact & links</h2>
+            {!editing ? (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="text-sm font-medium text-royal-violet hover:text-royal-violet/80 transition-colors"
+              >
+                Edit
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { setEditing(false); setForm({ phone: profile.phone ?? '', companyName: profile.companyName ?? '', linkedInUrl: profile.linkedInUrl ?? '', twitterUrl: profile.twitterUrl ?? '', instagramUrl: profile.instagramUrl ?? '' }); }}
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+          {!editing ? (
+            <dl className="space-y-3 text-gray-900">
+              <div>
+                <dt className="text-gray-500 text-sm">Phone</dt>
+                <dd>{profile.phone || '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500 text-sm">Company</dt>
+                <dd>{profile.companyName || '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500 text-sm">LinkedIn</dt>
+                <dd>{profile.linkedInUrl ? <a href={profile.linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">{profile.linkedInUrl}</a> : '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500 text-sm">Twitter / X</dt>
+                <dd>{profile.twitterUrl ? <a href={profile.twitterUrl} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">{profile.twitterUrl}</a> : '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500 text-sm">Instagram</dt>
+                <dd>{profile.instagramUrl ? <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">{profile.instagramUrl}</a> : '—'}</dd>
+              </div>
+            </dl>
+          ) : (
+            <form onSubmit={(e) => { handleSubmit(e); setEditing(false); }} className="space-y-4">
+              <input type="tel" placeholder="Phone number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} />
+              <input type="text" placeholder="Company name" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} className={inputClass} />
+              <input type="url" placeholder="LinkedIn profile URL" value={form.linkedInUrl} onChange={(e) => setForm({ ...form, linkedInUrl: e.target.value })} className={inputClass} />
+              <input type="url" placeholder="Twitter / X profile URL" value={form.twitterUrl} onChange={(e) => setForm({ ...form, twitterUrl: e.target.value })} className={inputClass} />
+              <input type="url" placeholder="Instagram profile URL" value={form.instagramUrl} onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })} className={inputClass} />
+              {message && <p className={`text-sm ${message.includes('updated') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
+              <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save changes'}
+              </button>
+            </form>
           )}
-          <button
-            type="submit"
-            disabled={saving}
-            className="btn-primary disabled:opacity-50"
-          >
-            {saving ? 'Saving...' : 'Save changes'}
-          </button>
-        </form>
+        </div>
 
+        {/* Sign out only from profile page */}
         <div className="pt-8 border-t border-gray-200">
           <SignOutButton signOutOptions={{ redirectUrl: '/' }}>
             <button className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium">
