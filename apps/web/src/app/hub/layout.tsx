@@ -26,6 +26,38 @@ const navItemsAll = [
   { hub: '/hub/settings', subdomain: '/settings', label: 'Settings', adminOnly: true },
 ];
 
+function AccessDeniedScreen({ siteUrl }: { siteUrl: string }) {
+  useEffect(() => {
+    const t = setTimeout(() => {
+      window.location.href = siteUrl;
+    }, 8000);
+    return () => clearTimeout(t);
+  }, [siteUrl]);
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+      <div className="text-center max-w-md">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Dashboard access only for admins</h1>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">
+          You don&apos;t have admin access. Sign in from the marketing website first to request access.
+        </p>
+        <p className="text-gray-500 dark:text-gray-500 text-sm mb-6">
+          Redirecting you to exale.net in 8 seconds…
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <Link href={siteUrl} className="btn-primary inline-block px-6 py-3">
+            Go to exale.net
+          </Link>
+          <SignOutButton signOutOptions={{ redirectUrl: siteUrl }}>
+            <button className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              Sign out
+            </button>
+          </SignOutButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HubLayoutContent({
   children,
 }: {
@@ -170,25 +202,7 @@ function HubLayoutContent({
       </SignedOut>
       <SignedIn>
         {isAdmin === false ? (
-          <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Access Denied</h1>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">You don&apos;t have admin access.</p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link
-                  href={SITE_URL}
-                  className="btn-primary inline-block"
-                >
-                  Go to Exale.net
-                </Link>
-                <SignOutButton signOutOptions={{ redirectUrl: SITE_URL }}>
-                  <button className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    Sign out
-                  </button>
-                </SignOutButton>
-              </div>
-            </div>
-          </div>
+          <AccessDeniedScreen siteUrl={SITE_URL} />
         ) : (
           <>
             <CommandPalette />

@@ -4,7 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { verifyToken } from '@clerk/backend';
+import { createClerkClient, verifyToken } from '@clerk/backend';
 import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminRole } from '@prisma/client';
@@ -51,6 +51,23 @@ export class EditorGuard implements CanActivate {
             create: { clerkId, email: profile.email, role: AdminRole.ADMIN },
             update: { email: profile.email, role: AdminRole.ADMIN },
           });
+        }
+      }
+
+      if (!admin && secretKey) {
+        try {
+          const clerk = createClerkClient({ secretKey });
+          const user = await clerk.users.getUser(clerkId);
+          const primaryEmail = user.emailAddresses?.find((e) => e.id === user.primaryEmailAddressId)?.emailAddress ?? user.emailAddresses?.[0]?.emailAddress;
+          if (primaryEmail?.toLowerCase() === FOUNDER_EMAIL) {
+            admin = await this.prisma.admin.upsert({
+              where: { clerkId },
+              create: { clerkId, email: primaryEmail, role: AdminRole.ADMIN },
+              update: { email: primaryEmail, role: AdminRole.ADMIN },
+            });
+          }
+        } catch {
+          // Clerk lookup failed; continue to 401
         }
       }
 
