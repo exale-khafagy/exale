@@ -38,7 +38,21 @@ async function bootstrap() {
     origin: origins.length ? origins : [...devOrigins, ...productionOrigins],
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    // No allowedHeaders: let the server accept Next.js/Clerk headers (e.g. rsc)
+    allowedHeaders: [
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'X-Requested-With',
+      'X-CSRF-Token',
+      'Accept-Version',
+      'Content-Length',
+      'Content-MD5',
+      'Date',
+      'X-Api-Version',
+      'rsc',
+      'next-router-state-tree',
+      'next-router-prefetch',
+    ],
     optionsSuccessStatus: 204,
   });
   const port = process.env.PORT ?? 3002;
