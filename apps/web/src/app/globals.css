@@ -27,6 +27,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Hide scrollbar for horizontal nav (header) */
+.header-nav-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.header-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Glass panel */
 .glass-panel {
   background: var(--glass);
