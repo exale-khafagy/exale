@@ -22,14 +22,12 @@ const navLinks = [
 ];
 
 const baseLinkClass =
-  'text-xs uppercase tracking-[0.18em] font-semibold text-white/75 hover:text-white transition-all duration-300 whitespace-nowrap';
+  'text-xs uppercase tracking-[0.18em] font-semibold text-white/80 hover:text-white transition-all duration-300 whitespace-nowrap';
 
 export function Header() {
   const { user } = useUser();
   const { getToken, isLoaded } = useAuth();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  
-  // New state for the mobile hamburger menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const FOUNDER_EMAIL = 'khafagy.ahmedibrahim@gmail.com';
@@ -70,15 +68,15 @@ export function Header() {
     .join('') || '?';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-exale-dark/90 backdrop-blur-xl backdrop-saturate-150 border-b border-white/[0.08] shadow-sm">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-exale-dark/95 backdrop-blur-xl border-b border-white/[0.08] shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 min-h-[64px]">
         
         {/* Logo */}
         <Link
           href="/"
-          className="shrink-0 transition-transform hover:scale-105 duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded z-50"
+          className="shrink-0 transition-opacity hover:opacity-80 z-50"
           aria-label="Exale home"
-          onClick={() => setIsMobileMenuOpen(false)} // Close menu if clicking logo
+          onClick={() => setIsMobileMenuOpen(false)}
         >
           <Image
             src="/images/exale-logo.png"
@@ -90,8 +88,8 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop Navigation (Hidden on Mobile) */}
-        <nav className="hidden md:flex flex-1 items-center justify-end gap-8" aria-label="Main navigation">
+        {/* Desktop Navigation (Strictly visible on 'lg' screens and up) */}
+        <nav className="hidden lg:flex flex-1 items-center justify-end gap-8" aria-label="Main navigation">
           <div className="flex items-center gap-8">
             {navLinks.map((link) => (
               <Link key={link.href} href={link.href} className={`${baseLinkClass} py-2`}>
@@ -133,13 +131,12 @@ export function Header() {
           </div>
         </nav>
 
-        {/* Mobile Hamburger Toggle Button */}
+        {/* Mobile Hamburger Toggle Button (Strictly visible on smaller screens) */}
         <button
-          className="md:hidden p-2 text-white/80 hover:text-white transition-colors z-50"
+          className="block lg:hidden p-2 text-white/80 hover:text-white transition-colors z-50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
-          {/* Simple animated SVG for Menu (Hamburger / X) */}
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isMobileMenuOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -152,8 +149,8 @@ export function Header() {
 
       {/* Mobile Dropdown Menu */}
       <div 
-        className={`md:hidden absolute top-full left-0 right-0 bg-exale-dark/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300 ease-in-out overflow-hidden ${
-          isMobileMenuOpen ? 'max-h-[500px] opacity-100 py-4' : 'max-h-0 opacity-0 py-0'
+        className={`lg:hidden absolute top-full left-0 right-0 bg-exale-dark/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300 ease-in-out overflow-hidden ${
+          isMobileMenuOpen ? 'max-h-[500px] opacity-100 py-4 shadow-2xl' : 'max-h-0 opacity-0 py-0'
         }`}
       >
         <div className="flex flex-col px-4 gap-4">
