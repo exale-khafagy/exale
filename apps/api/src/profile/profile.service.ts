@@ -14,6 +14,7 @@ export interface SyncProfileDto {
   email: string;
   firstName?: string;
   lastName?: string;
+  avatarUrl?: string;
 }
 
 @Injectable()
@@ -34,11 +35,13 @@ export class ProfileService {
         email: dto.email,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        avatarUrl: dto.avatarUrl,
       },
       update: {
         email: dto.email,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        ...(dto.avatarUrl !== undefined && { avatarUrl: dto.avatarUrl }),
       },
     });
 

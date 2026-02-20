@@ -32,7 +32,7 @@ export class ProfileController {
   @Post('sync')
   @UseGuards(ClerkGuard)
   async sync(
-    @Body() body: { email?: string; firstName?: string; lastName?: string },
+    @Body() body: { email?: string; firstName?: string; lastName?: string; avatarUrl?: string },
     @Req() req: Request & { clerkId: string },
   ) {
     const email = body?.email?.trim();
@@ -43,6 +43,7 @@ export class ProfileController {
       email,
       firstName: body.firstName,
       lastName: body.lastName,
+      avatarUrl: body.avatarUrl,
     });
   }
 
