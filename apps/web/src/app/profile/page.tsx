@@ -152,17 +152,19 @@ export default function ProfilePage() {
     );
   }
 
-  // API profile not ready yet - show Clerk data + retry
+  // API profile not ready yet - show Clerk data + retry (this IS your profile page)
   if (!profile) {
     const clerkName = [user.firstName, user.lastName].filter(Boolean).join(' ') || 'Profile';
     const clerkEmail = user.primaryEmailAddress?.emailAddress ?? '';
     return (
       <div className="max-w-xl mx-auto py-24 px-6">
-        <div className="glass-panel p-8 rounded-2xl text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">{clerkName}</h1>
-          {clerkEmail && <p className="text-gray-600 mb-6">{clerkEmail}</p>}
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 text-center">Your profile</h1>
+        <p className="text-gray-600 text-center mb-8">This is your profile page. Sign out is below.</p>
+        <div className="glass-panel p-8 rounded-2xl">
+          <h2 className="text-xl font-semibold text-gray-900 mb-1">{clerkName}</h2>
+          {clerkEmail && <p className="text-gray-600 mb-4">{clerkEmail}</p>}
           <p className="text-gray-600 mb-6">
-            Your profile is being set up. If this message persists, the connection to our server may be delayed.
+            Your full profile (with edit options for phone, company, and links) will appear here once your account is synced with our server. If it doesn’t load, use Try again or check that the API is running.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -178,8 +180,8 @@ export default function ProfilePage() {
               </button>
             </SignOutButton>
           </div>
-          <p className="mt-4 text-sm text-gray-500">
-            Make sure the API is running at {API_URL}
+          <p className="mt-4 text-sm text-gray-500 text-center">
+            API: {API_URL}
           </p>
         </div>
       </div>
