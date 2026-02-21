@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const [retrying, setRetrying] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadErrorDetail, setLoadErrorDetail] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     phone: '',
@@ -49,6 +50,7 @@ export default function ProfilePage() {
     const token = await getToken();
     if (!token || !user) return null;
     setLoadError(null);
+    setLoadErrorDetail(null);
     try {
       let data = await apiGet<Profile | null>('/profile/me', token);
       if (!data) {
@@ -75,6 +77,7 @@ export default function ProfilePage() {
       return data;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Network or server error';
+      setLoadErrorDetail(msg);
       setLoadError(
         msg === 'UNAUTHORIZED'
           ? 'We couldn’t verify your sign-in. Please sign out and sign in again.'
@@ -112,6 +115,7 @@ export default function ProfilePage() {
     if (!user) return;
     setRetrying(true);
     setLoadError(null);
+    setLoadErrorDetail(null);
     const data = await loadProfile();
     setProfile(data);
     if (data) {
@@ -182,9 +186,16 @@ export default function ProfilePage() {
           <h2 className="text-xl font-semibold text-gray-900 mb-1">{clerkName}</h2>
           {clerkEmail && <p className="text-gray-600 mb-4">{clerkEmail}</p>}
           {loadError && (
-            <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6 text-left text-sm">
-              {loadError}
-            </p>
+            <>
+              <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4 text-left text-sm">
+                {loadError}
+              </p>
+              {typeof window !== 'undefined' && process.env.NODE_ENV === 'development' && loadErrorDetail && (
+                <p className="text-xs text-gray-500 mb-6 font-mono bg-gray-100 px-3 py-2 rounded break-all">
+                  Debug: {loadErrorDetail}
+                </p>
+              )}
+            </>
           )}
           <p className="text-gray-600 mb-6">
             Your full profile (with edit options for phone, company, and links) will appear here once your account is synced with our server. If it doesn’t load, use Try again.
