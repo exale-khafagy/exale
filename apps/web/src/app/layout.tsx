@@ -3,7 +3,6 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { extractRouterConfig } from 'uploadthing/server';
 import { Plus_Jakarta_Sans } from 'next/font/google';
-import Script from 'next/script';
 import { PublicLayout } from '@/components/PublicLayout';
 import { ProfileSync } from '@/components/ProfileSync';
 import { SchemaOrg } from '@/components/SchemaOrg';
@@ -12,7 +11,6 @@ import { ourFileRouter } from '@/app/api/uploadthing/core';
 import './globals.css';
 import '@uploadthing/react/styles.css';
 
-// Inline fallback so tag loads even if Vercel doesn't inject NEXT_PUBLIC_* at build (e.g. monorepo)
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? 'G-39KEHMNYXV';
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -45,26 +43,30 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          {GA_ID ? (
+            <>
+              <script
+                async
+                src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              />
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: [
+                    'window.dataLayer = window.dataLayer || [];',
+                    'function gtag(){dataLayer.push(arguments);}',
+                    "gtag('js', new Date());",
+                    "gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied' });",
+                    `gtag('config', '${GA_ID}', { send_page_view: false });`,
+                  ].join('\n'),
+                }}
+              />
+            </>
+          ) : null}
+        </head>
         <body
           className={`${plusJakarta.variable} font-sans antialiased bg-background`}
         >
-          {GA_ID && (
-            <>
-              <Script
-                src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-                strategy="beforeInteractive"
-              />
-              <Script id="gtag-init" strategy="beforeInteractive">
-                {`
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied' });
-                  gtag('config', '${GA_ID}', { send_page_view: false });
-                `}
-              </Script>
-            </>
-          )}
           <SchemaOrg />
           <CookieConsent />
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
