@@ -4,6 +4,7 @@ import type { INestApplication } from '@nestjs/common';
 
 let app: INestApplication;
 
+// CORS: allow frontend (e.g. https://exale.net/profile) and dashboard
 const requiredOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',

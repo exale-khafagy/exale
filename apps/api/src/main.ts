@@ -23,6 +23,7 @@ async function bootstrap() {
     'http://dashboard.localhost:3000',
     'http://127.0.0.1:3000',
   ];
+  // Frontend origins (profile at https://exale.net/profile, dashboard, etc.)
   const productionOrigins = [
     'https://exale.net',
     'https://www.exale.net',
@@ -33,7 +34,7 @@ async function bootstrap() {
   const origins =
     process.env.NODE_ENV === 'development'
       ? [...new Set([...(envOrigins ?? []), ...devOrigins])]
-      : (envOrigins?.length ? envOrigins : productionOrigins);
+      : [...new Set([...(envOrigins ?? []), ...productionOrigins])];
   app.enableCors({
     origin: origins.length ? origins : [...devOrigins, ...productionOrigins],
     credentials: true,
