@@ -49,10 +49,6 @@ async function getApp() {
 
 export default async function handler(req: unknown, res: unknown) {
   const express = await getApp();
-  // Vercel rewrites /(.*) → /api/$1, so req.url is /api/profile/me. Nest routes expect /profile/me.
-  const rawReq = req as { url?: string };
-  if (rawReq.url?.startsWith('/api')) {
-    rawReq.url = rawReq.url.slice(4) || '/';
-  }
+  // Path stripping is done in api/[[...path]].js before calling this handler.
   return express(req, res);
 }
