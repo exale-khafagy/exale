@@ -2,7 +2,7 @@
   "version": 2,
   "buildCommand": "npm run db:generate && npm run build",
   "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
+    { "source": "/(.*)", "destination": "/api/$1" }
   ],
   "headers": [
     {
