@@ -35,6 +35,13 @@ async function bootstrap() {
     process.env.NODE_ENV === 'development'
       ? [...new Set([...(envOrigins ?? []), ...devOrigins])]
       : [...new Set([...(envOrigins ?? []), ...productionOrigins])];
+
+  console.log('origins', origins);
+  console.log('devOrigins', devOrigins);
+  console.log('productionOrigins', productionOrigins);
+  console.log('envOrigins', envOrigins);
+  console.log('process.env', process.env);
+
   app.enableCors({
     origin: origins.length ? origins : [...devOrigins, ...productionOrigins],
     credentials: true,
