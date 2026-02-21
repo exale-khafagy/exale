@@ -35,6 +35,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     phone: '',
@@ -47,6 +48,7 @@ export default function ProfilePage() {
   async function loadProfile() {
     const token = await getToken();
     if (!token || !user) return null;
+    setLoadError(null);
     try {
       let data = await apiGet<Profile | null>('/profile/me', token);
       if (!data) {
@@ -61,10 +63,25 @@ export default function ProfilePage() {
         });
         if (syncRes.ok) {
           data = await apiGet<Profile | null>('/profile/me', token);
+        } else {
+          const errText = await syncRes.text();
+          setLoadError(
+            syncRes.status === 401
+              ? 'We couldn’t verify your sign-in. Please sign out and sign in again.'
+              : 'We couldn’t sync your profile. Please try again in a moment.',
+          );
         }
       }
       return data;
-    } catch {
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Network or server error';
+      setLoadError(
+        msg === 'UNAUTHORIZED'
+          ? 'We couldn’t verify your sign-in. Please sign out and sign in again.'
+          : msg === 'SERVER_ERROR'
+            ? 'Something went wrong on our end. Please try again in a moment.'
+            : 'We couldn’t load your profile. Please try again.',
+      );
       return null;
     }
   }
@@ -94,6 +111,7 @@ export default function ProfilePage() {
   async function handleRetry() {
     if (!user) return;
     setRetrying(true);
+    setLoadError(null);
     const data = await loadProfile();
     setProfile(data);
     if (data) {
@@ -163,8 +181,13 @@ export default function ProfilePage() {
         <div className="glass-panel p-8 rounded-2xl">
           <h2 className="text-xl font-semibold text-gray-900 mb-1">{clerkName}</h2>
           {clerkEmail && <p className="text-gray-600 mb-4">{clerkEmail}</p>}
+          {loadError && (
+            <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-6 text-left text-sm">
+              {loadError}
+            </p>
+          )}
           <p className="text-gray-600 mb-6">
-            Your full profile (with edit options for phone, company, and links) will appear here once your account is synced with our server. If it doesn’t load, use Try again or check that the API is running.
+            Your full profile (with edit options for phone, company, and links) will appear here once your account is synced with our server. If it doesn’t load, use Try again.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -180,9 +203,6 @@ export default function ProfilePage() {
               </button>
             </SignOutButton>
           </div>
-          <p className="mt-4 text-sm text-gray-500 text-center">
-            API: {API_URL}
-          </p>
         </div>
       </div>
     );

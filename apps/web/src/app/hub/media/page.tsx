@@ -40,9 +40,9 @@ export default function MediaLibraryPage() {
       if (err.message === 'UNAUTHORIZED') {
         setError("You don't have access.");
       } else if (err.status === 500) {
-        setError('Server error. The database may need the MediaFile collection. Run db:generate and db:push in apps/api (stop the API first).');
+        setError('Something went wrong. Please try again.');
       } else {
-        setError('Failed to load media files. Check that the API is running.');
+        setError('Failed to load media files. Please try again.');
       }
       setFiles([]);
     } finally {

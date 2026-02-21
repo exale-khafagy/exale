@@ -56,9 +56,9 @@ The API uses **Vercel serverless functions** (no legacy `builds`): `api/[[...pat
 
 | Variable | Required | Example |
 |----------|----------|---------|
-| `DATABASE_URL` | ✓ | MongoDB Atlas connection string |
+| `DATABASE_URL` | ✓ | MongoDB Atlas connection string (e.g. ExaleHoldings cluster). Run `npx prisma db push` in `apps/api` once so Profile and other collections exist. |
 | `CORS_ORIGIN` | ✓ | `https://exale.net,https://www.exale.net,https://dashboard.exale.net` |
-| `CLERK_SECRET_KEY` | ✓ | From Clerk Dashboard |
+| `CLERK_SECRET_KEY` | ✓ | From Clerk Dashboard (same app as the web frontend — required for profile page and hub auth) |
 | `SENTRY_DSN` | Optional | From [sentry.io](https://sentry.io) – API error tracking |
 
 ### Domains
@@ -97,13 +97,10 @@ Use the exact values Vercel shows in the Domains tab.
 
 1. **Update `NEXT_PUBLIC_API_URL`** in Web project to the deployed API URL (e.g. `https://api.exale.net`)
 2. **Update `CORS_ORIGIN`** in API project to include production domains
-3. **Add first Admin** — run locally or connect to DB:
-   ```bash
-   cd apps/api && npm run db:add-admin <clerkId> <email>
-   ```
-4. **Clerk** — Add production domains to allowed origins in [dashboard.clerk.com](https://dashboard.clerk.com)
-5. **UploadThing** — Verify production domain in [uploadthing.com](https://uploadthing.com) if needed
-6. **CMS content blocks (optional)** — To populate or reset editable content for Home, Services, Partners, Media, Blog, and Projects, run: `cd apps/api && npx prisma db seed`
+3. **Database:** Run `npx prisma db push` from `apps/api` (with production `DATABASE_URL` in `.env`) once per cluster so Profile and other collections exist. Then optionally seed: `cd apps/api && npx prisma db seed`
+4. **Add first Admin:** Founder email gets Admin on first profile sync. For other admins: `cd apps/api && npm run db:add-admin <clerkId> <email>`
+5. **Clerk** — Add production domains to allowed origins in [dashboard.clerk.com](https://dashboard.clerk.com). Use the **same** Clerk app for web and API so profile page and hub auth work.
+6. **UploadThing** — Verify production domain in [uploadthing.com](https://uploadthing.com) if needed
 
 ---
 

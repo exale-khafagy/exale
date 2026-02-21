@@ -132,7 +132,7 @@ export default function CMSPage() {
       setBlocks(data);
     } catch (err) {
       setBlocks([]);
-      setLoadError(err instanceof Error ? err.message : 'Failed to load content. Check that the API is running at http://localhost:3002.');
+      setLoadError(err instanceof Error ? err.message : 'Failed to load content. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -402,7 +402,7 @@ export default function CMSPage() {
           <h2 className="text-red-600 dark:text-red-400 font-semibold mb-2">Failed to load content</h2>
           <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">{loadError}</p>
           <p className="text-gray-600 dark:text-gray-400 text-xs mb-4">
-            Make sure the API server is running at <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">http://localhost:3002</code>
+            Please try again in a moment.
           </p>
           <button
             onClick={loadContent}

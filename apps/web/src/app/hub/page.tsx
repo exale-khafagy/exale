@@ -7,7 +7,6 @@ import { useHubPath } from '@/lib/useHubPath';
 import Link from 'next/link';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 interface Stats {
   contactTotal: number;
@@ -207,14 +206,13 @@ export default function HubPage() {
           >
             Edit Content
           </Link>
-          <Link
-            href={SITE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          <a
+            href="https://exale.net"
+            onClick={(e) => { e.preventDefault(); window.location.href = 'https://exale.net'; }}
+            className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors inline-block"
           >
             View Website
-          </Link>
+          </a>
         </div>
       </div>
     </div>

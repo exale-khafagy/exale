@@ -10,7 +10,6 @@ import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { CommandPalette } from '@/components/hub/CommandPalette';
 
 const DASHBOARD_HOST = process.env.NEXT_PUBLIC_DASHBOARD_HOST || 'dashboard.exale.net';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
 const navItemsAll = [
   { hub: '/hub', subdomain: '/', label: 'Overview' },
@@ -120,7 +119,7 @@ function HubLayoutContent({
           setRole(result.role ?? (result.isAdmin ? 'ADMIN' : null));
           if (!result.isAdmin && !isFounderEmail) {
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-              window.location.href = SITE_URL;
+              window.location.href = 'https://exale.net';
             } else {
               router.push('/');
             }
@@ -144,7 +143,7 @@ function HubLayoutContent({
           } else {
             setIsAdmin(false);
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-              window.location.href = SITE_URL;
+              window.location.href = 'https://exale.net';
             } else {
               router.push('/');
             }
@@ -158,7 +157,7 @@ function HubLayoutContent({
         } else {
           setIsAdmin(false);
           if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-            window.location.href = SITE_URL;
+            window.location.href = 'https://exale.net';
           } else {
             router.push('/');
           }
@@ -201,7 +200,7 @@ function HubLayoutContent({
       </SignedOut>
       <SignedIn>
         {isAdmin === false ? (
-          <AccessDeniedScreen siteUrl={SITE_URL} />
+          <AccessDeniedScreen siteUrl="https://exale.net" />
         ) : (
           <>
             <CommandPalette />
@@ -297,30 +296,28 @@ function HubLayoutContent({
                         </svg>
                       )}
                     </button>
-                    <Link
-                      href={SITE_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <a
+                      href="https://exale.net"
+                      onClick={(e) => { e.preventDefault(); window.location.href = 'https://exale.net'; }}
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors shrink-0"
                     >
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                       Go to exale.net
-                    </Link>
-                    <Link
-                      href={SITE_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    </a>
+                    <a
+                      href="https://exale.net"
+                      onClick={(e) => { e.preventDefault(); window.location.href = 'https://exale.net'; }}
                       className="sm:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
                       aria-label="Go to exale.net"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
-                    </Link>
+                    </a>
                     <Link
-                      href={isDashboardSubdomain ? `${SITE_URL}/profile` : '/profile'}
+                      href={isDashboardSubdomain ? 'https://exale.net/profile' : '/profile'}
                       className="flex items-center gap-2 rounded-full overflow-hidden shrink-0 ml-2 border border-gray-200 dark:border-gray-600 hover:opacity-90 transition-opacity"
                       aria-label="Profile (sign out from profile page)"
                     >

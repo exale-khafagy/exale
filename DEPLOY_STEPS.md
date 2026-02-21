@@ -21,13 +21,14 @@ Follow these steps **in order** to deploy your marketing website.
 2. Create a new **M0 Free** cluster (or upgrade if needed)
 3. Wait for cluster to finish provisioning (~3-5 minutes)
 
-### Step 1.2: Connection String (✅ Already Configured)
-Your MongoDB connection string is ready:
+### Step 1.2: Connection String (ExaleHoldings cluster)
+Use your MongoDB Atlas cluster connection string. For the **ExaleHoldings** cluster, the format is:
 ```
-mongodb+srv://AhmedKhafagy:R08a07N99a@exale-prod.hlqsatd.mongodb.net/exale?retryWrites=true&w=majority
+mongodb+srv://Exale:<YOUR_PASSWORD>@exaleholdings.pxjlw6s.mongodb.net/exale?retryWrites=true&w=majority&appName=ExaleHoldings
 ```
+Replace `<YOUR_PASSWORD>` with your Atlas database user password.
 
-**Use this exact string** in the API project's `DATABASE_URL` environment variable in Vercel.
+**Use this string** in the API project's `DATABASE_URL` environment variable in Vercel (and in `apps/api/.env` for local dev). Run `npx prisma db push` from `apps/api` once so the Profile and other collections exist on the cluster.
 
 ### Step 1.3: Configure Network Access
 1. Go to **Network Access** → **Add IP Address**
@@ -94,7 +95,7 @@ Go to **Settings** → **Environment Variables** and add:
 
 | Variable | Value | Notes |
 |----------|-------|-------|
-| `DATABASE_URL` | `mongodb+srv://AhmedKhafagy:R08a07N99a@exale-prod.hlqsatd.mongodb.net/exale?retryWrites=true&w=majority` | Your MongoDB production cluster |
+| `DATABASE_URL` | `mongodb+srv://Exale:<PASSWORD>@exaleholdings.pxjlw6s.mongodb.net/exale?retryWrites=true&w=majority&appName=ExaleHoldings` | Your MongoDB Atlas cluster (ExaleHoldings or your own). Run `npx prisma db push` in `apps/api` so collections exist. |
 | `CORS_ORIGIN` | `https://exale.net,https://www.exale.net,https://hub.exale.net,https://dashboard.exale.net` | Optional; API always allows these + your list. Include dashboard if you use that subdomain. |
 | `CLERK_SECRET_KEY` | `sk_...` | From Clerk (Step 2.2) |
 | `NODE_ENV` | `production` | Optional but recommended |
@@ -212,26 +213,31 @@ Go to **Settings** → **Environment Variables** and add:
 3. **Redeploy** the API project
 
 ### Step 7.3: Add First Admin User
-Run this locally (or connect to MongoDB directly):
+The **founder email** (e.g. `khafagy.ahmedibrahim@gmail.com`) gets Admin access automatically when they sign in and their profile syncs. For other admins, run:
 
 ```bash
 cd apps/api
 npm install
-# Set DATABASE_URL in .env.local or export it
-npm run db:add-admin <your-clerk-user-id> khafagy.ahmedibrahim@gmail.com
+# Set DATABASE_URL in apps/api/.env (same as production cluster)
+npm run db:add-admin <clerk-user-id> <email>
 ```
 
-**To get your Clerk User ID:**
-1. Go to Clerk Dashboard → **Users**
-2. Find your user → Copy the **User ID** (starts with `user_...`)
+**To get your Clerk User ID:** Clerk Dashboard → **Users** → select user → copy **User ID** (e.g. `user_...`).
 
-### Step 7.4: Seed CMS Content (Optional)
+### Step 7.4: Create database collections (required once per cluster)
+Ensure the API’s MongoDB cluster has the schema. From your machine (with `DATABASE_URL` in `apps/api/.env`):
+
+```bash
+cd apps/api
+npx prisma db push
+```
+
+### Step 7.5: Seed CMS Content (Optional)
 To populate editable content blocks:
 
 ```bash
 cd apps/api
-npm install
-# Set DATABASE_URL in .env.local
+# DATABASE_URL must be set in .env
 npx prisma db seed
 ```
 
@@ -242,8 +248,9 @@ npx prisma db seed
 ### Checklist:
 - [ ] `https://exale.net` loads the marketing site
 - [ ] `https://www.exale.net` redirects or loads correctly
-- [ ] `https://api.exale.net` returns API responses
+- [ ] `https://api.exale.net` returns API responses (e.g. `/health` → `{"status":"ok"}`)
 - [ ] Sign in works on `https://exale.net`
+- [ ] **Profile page** (`https://exale.net/profile`) shows your details (name, email, avatar, edit options) after sign-in
 - [ ] Dashboard accessible at `https://exale.net/hub` (when signed in as admin)
 - [ ] CMS page loads at `https://exale.net/hub/cms`
 - [ ] Contact form submits successfully
@@ -273,10 +280,15 @@ npx prisma db seed
 - **DNS:** In GoDaddy, add a **CNAME** for `dashboard` pointing to the same value as `exale.net` (e.g. `cname.vercel-dns.com`). Wait a few minutes for DNS to update.
 - **Alternative:** Use **https://exale.net/hub** for the dashboard; it’s the same app and doesn’t require the subdomain.
 
+### Profile page shows “Your full profile will appear once synced” or doesn’t load?
+- **API project:** Set `DATABASE_URL` to your MongoDB Atlas connection string (e.g. ExaleHoldings cluster) and `CLERK_SECRET_KEY` to the **same** Clerk app’s secret key (so the API can verify the JWT). Redeploy the API.
+- **Create collections:** Run `npx prisma db push` from `apps/api` with `DATABASE_URL` in `.env` pointing at the same cluster. Do this once per cluster.
+- **Web:** Set `NEXT_PUBLIC_API_URL` to `https://api.exale.net` and redeploy. The profile page shows a specific error (e.g. 401, 500) when sync or load fails — use that to debug.
+
 ### Dashboard shows "Failed to load applications" or "API error"?
 - **Web project:** Set `NEXT_PUBLIC_API_URL` to `https://api.exale.net` (and redeploy so the new value is baked in).
-- **API project:** CORS now always allows `https://dashboard.exale.net` and `https://hub.exale.net`; ensure the API deployment succeeded and `CLERK_SECRET_KEY` is set so the API can verify dashboard tokens.
-- **Admin access:** Your Clerk user must be added as an admin (run `npm run db:add-admin <clerk-user-id> <email>` in `apps/api` with `DATABASE_URL` set). Otherwise the API returns 401 and the dashboard shows "You don't have access."
+- **API project:** CORS allows `https://dashboard.exale.net` and `https://hub.exale.net`; ensure the API deployment succeeded and `CLERK_SECRET_KEY` is set so the API can verify dashboard tokens.
+- **Admin access:** Founder email gets Admin automatically on first profile sync; for other users run `npm run db:add-admin <clerk-user-id> <email>` in `apps/api` with `DATABASE_URL` set. Otherwise the API returns 401 and the dashboard shows "You don't have access."
 - If the UI shows e.g. "API error: Failed to fetch (404)", the API route or deployment is wrong; if "(500)", check API logs and env (e.g. `DATABASE_URL`, Prisma).
 
 ### Authentication Not Working?

@@ -105,6 +105,7 @@ Runs tests in both API and Web apps.
 
 ## Database Schema
 
+- **Profile** — User profiles synced from Clerk (name, email, avatar, phone, company, social links). Powers `/profile` page.
 - **Admin** — Clerk-synced admin users (role: EDITOR | ADMIN)
 - **ContentBlock** — CMS content (key, value, type, section)
 - **ContentBlockVersion** — Version history for content rollback

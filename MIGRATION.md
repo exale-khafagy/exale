@@ -4,7 +4,7 @@
 
 Run migrations when:
 
-- You add or change models in `apps/api/prisma/schema.prisma` (e.g. `MediaFile`, `Settings`, `ContentBlock`, `ContentBlockVersion`, `Admin.role`)
+- You add or change models in `apps/api/prisma/schema.prisma` (e.g. `Profile`, `MediaFile`, `Settings`, `ContentBlock`, `ContentBlockVersion`, `Admin.role`)
 - You see "Failed to load" in Media Library or Settings
 - Prisma errors mention missing tables/collections
 

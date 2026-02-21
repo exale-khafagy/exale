@@ -49,7 +49,7 @@ export default function InboxApplyPage() {
           msg === 'UNAUTHORIZED'
             ? "You don't have access."
             : msg.startsWith('Failed to fetch')
-              ? `API error: ${msg}`
+              ? 'Something went wrong. Please try again.'
               : msg,
         );
       } finally {
@@ -271,7 +271,7 @@ export default function InboxApplyPage() {
                 msg === 'UNAUTHORIZED'
                   ? "You don't have access."
                   : msg.startsWith('Failed to fetch')
-                    ? `API error: ${msg}`
+                    ? 'Something went wrong. Please try again.'
                     : msg,
               );
             } finally {

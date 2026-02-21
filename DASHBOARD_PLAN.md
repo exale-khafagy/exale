@@ -13,7 +13,7 @@ This document outlines the features and improvements needed for the Exale market
 - ✅ **Content Management System** (`/hub/cms`) - Edit website content by section
 - ✅ **Admin Management** (`/hub/admins`) - Add/remove admin users
 - ✅ **Authentication** - Clerk-based auth with admin-only access
-- ✅ **Profile Sync** - Automatic admin creation for founder email
+- ✅ **Profile Sync** - User profiles (name, email, avatar) sync from Clerk to API for the public `/profile` page; founder email gets Admin automatically
 
 ---
 

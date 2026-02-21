@@ -269,15 +269,15 @@ See [DEPLOY.md](./DEPLOY.md) for production deployment and env vars.
 
 ### `apps/api/.env` (local)
 ```
-DATABASE_URL=mongodb+srv://...
+DATABASE_URL=mongodb+srv://USER:PASSWORD@exaleholdings.pxjlw6s.mongodb.net/exale?retryWrites=true&w=majority&appName=ExaleHoldings
 CORS_ORIGIN=http://localhost:3000,https://exale.net
-PORT=3001
-CLERK_SECRET_KEY=sk_test_...  # For API auth verification
+PORT=3002
+CLERK_SECRET_KEY=sk_test_...  # Same Clerk app as web — for profile + hub auth
 ```
 
 ### `apps/web/.env.local`
 ```
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3002
 UPLOADTHING_TOKEN=...
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
