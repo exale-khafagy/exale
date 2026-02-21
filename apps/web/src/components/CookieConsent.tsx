@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Script from 'next/script';
 import Link from 'next/link';
 
 const CONSENT_KEY = 'cookie-consent';
@@ -31,9 +30,9 @@ export function CookieConsent() {
     localStorage.setItem(CONSENT_KEY, 'accepted');
     setConsent('accepted');
     if (GA_ID && typeof window !== 'undefined') {
-      (window as unknown as { gtag?: (...args: unknown[]) => void }).gtag?.('consent', 'update', {
-        analytics_storage: 'granted',
-      });
+      const w = window as unknown as { gtag?: (...args: unknown[]) => void };
+      w.gtag?.('consent', 'update', { analytics_storage: 'granted', ad_storage: 'granted' });
+      w.gtag?.('event', 'page_view', { send_to: GA_ID });
     }
   };
 
@@ -46,26 +45,6 @@ export function CookieConsent() {
 
   return (
     <>
-      {GA_ID && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga-consent" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('consent', 'default', {
-                analytics_storage: 'denied',
-                ad_storage: 'denied'
-              });
-              gtag('config', '${GA_ID}', { send_page_view: false });
-            `}
-          </Script>
-        </>
-      )}
       {showBanner && (
         <div
           role="dialog"
