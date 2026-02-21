@@ -2,8 +2,43 @@
  * Vercel serverless entry. Rewrites send /health etc. to /api/health;
  * we strip the /api prefix so Nest receives /profile/me etc.
  * req.url can be path-only ("/api/profile/me") or full URL ("https://api.exale.net/api/profile/me").
+ * OPTIONS preflight is handled here so the response always includes CORS headers (fixes Vercel CORS issues).
  */
 const nestHandler = require('../dist/src/server').default;
+
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://dashboard.localhost:3000',
+  'https://exale.net',
+  'https://www.exale.net',
+  'https://hub.exale.net',
+  'https://dashboard.exale.net',
+  'https://api.exale.net',
+];
+
+const CORS_ALLOW_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS';
+const CORS_ALLOW_HEADERS = [
+  'Content-Type',
+  'Accept',
+  'Authorization',
+  'X-Requested-With',
+  'X-CSRF-Token',
+  'Accept-Version',
+  'Content-Length',
+  'Content-MD5',
+  'Date',
+  'X-Api-Version',
+  'rsc',
+  'next-router-state-tree',
+  'next-router-prefetch',
+].join(', ');
+
+function getAllowedOrigins() {
+  const env = process.env.CORS_ORIGIN;
+  const fromEnv = env ? env.split(',').map((o) => o.trim()).filter(Boolean) : [];
+  return [...new Set([...fromEnv, ...ALLOWED_ORIGINS])];
+}
 
 function getPathAndQuery(full) {
   if (!full || typeof full !== 'string') return { path: '/', query: '' };
@@ -25,6 +60,24 @@ function getPathAndQuery(full) {
 }
 
 module.exports = async function handler(req, res) {
+  const origins = getAllowedOrigins();
+  const requestOrigin = req.headers && (req.headers.origin || req.headers.Origin);
+  const allowedOrigin = requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null;
+
+  // Handle OPTIONS preflight so the response always has CORS headers (avoids "No Access-Control-Allow-Origin" on Vercel)
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 204;
+    res.setHeader('Access-Control-Allow-Methods', CORS_ALLOW_METHODS);
+    res.setHeader('Access-Control-Allow-Headers', CORS_ALLOW_HEADERS);
+    res.setHeader('Access-Control-Max-Age', '86400');
+    if (allowedOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    res.end();
+    return;
+  }
+
   const raw = req.url || req.originalUrl || '';
   const { path: pathPart, query: queryPart } = getPathAndQuery(raw);
   let path = pathPart;
