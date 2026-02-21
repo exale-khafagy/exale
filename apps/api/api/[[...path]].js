@@ -5,9 +5,17 @@
 const nestHandler = require('../dist/src/server').default;
 
 module.exports = async function handler(req, res) {
-  const originalUrl = req.url || req.originalUrl || '/';
-  const path = originalUrl.replace(/^\/api/, '') || '/';
-  req.url = path;
-  req.originalUrl = path;
+  const full = req.url || req.originalUrl || '/';
+  const [pathPart, queryPart] = full.split('?');
+  let raw = pathPart || '/';
+  // Strip /api or api so Nest receives /profile/me not /api/profile/me
+  if (raw.startsWith('/api/')) raw = raw.slice(4);
+  else if (raw.startsWith('/api')) raw = raw.slice(4);
+  else if (raw.startsWith('api/')) raw = raw.slice(3);
+  else if (raw === 'api') raw = '';
+  const path = raw ? (raw.startsWith('/') ? raw : '/' + raw) : '/';
+  const url = queryPart ? path + '?' + queryPart : path;
+  req.url = url;
+  req.originalUrl = url;
   return nestHandler(req, res);
 };
