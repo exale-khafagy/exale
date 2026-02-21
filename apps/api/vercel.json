@@ -10,7 +10,7 @@
         { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, rsc, next-router-state-tree, next-router-prefetch" },
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://exale.net,https://www.exale.net,https://dashboard.exale.net;https://api.exale.net"
+          "value": "https://exale.net"
         },
         {
           "key": "Access-Control-Allow-Credentials",
