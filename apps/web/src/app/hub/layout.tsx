@@ -11,6 +11,8 @@ import { CommandPalette } from '@/components/hub/CommandPalette';
 
 const DASHBOARD_HOST = process.env.NEXT_PUBLIC_DASHBOARD_HOST || 'dashboard.exale.net';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://exale.net';
+
 const navItemsAll = [
   { hub: '/hub', subdomain: '/', label: 'Overview' },
   { hub: '/hub/inbox', subdomain: '/inbox', label: 'Contact Inbox' },
@@ -119,7 +121,7 @@ function HubLayoutContent({
           setRole(result.role ?? (result.isAdmin ? 'ADMIN' : null));
           if (!result.isAdmin && !isFounderEmail) {
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-              window.location.href = 'https://exale.net';
+              window.location.href = SITE_URL;
             } else {
               router.push('/');
             }
@@ -143,7 +145,7 @@ function HubLayoutContent({
           } else {
             setIsAdmin(false);
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-              window.location.href = 'https://exale.net';
+              window.location.href = SITE_URL;
             } else {
               router.push('/');
             }
@@ -200,7 +202,7 @@ function HubLayoutContent({
       </SignedOut>
       <SignedIn>
         {isAdmin === false ? (
-          <AccessDeniedScreen siteUrl="https://exale.net" />
+          <AccessDeniedScreen siteUrl={SITE_URL} />
         ) : (
           <>
             <CommandPalette />
@@ -297,8 +299,8 @@ function HubLayoutContent({
                       )}
                     </button>
                     <a
-                      href="https://exale.net"
-                      onClick={(e) => { e.preventDefault(); window.location.href = 'https://exale.net'; }}
+                      href={SITE_URL}
+                      onClick={(e) => { e.preventDefault(); window.location.href = SITE_URL; }}
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors shrink-0"
                     >
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,8 +309,8 @@ function HubLayoutContent({
                       Go to exale.net
                     </a>
                     <a
-                      href="https://exale.net"
-                      onClick={(e) => { e.preventDefault(); window.location.href = 'https://exale.net'; }}
+                      href={SITE_URL}
+                      onClick={(e) => { e.preventDefault(); window.location.href = SITE_URL; }}
                       className="sm:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
                       aria-label="Go to exale.net"
                     >
@@ -317,7 +319,7 @@ function HubLayoutContent({
                       </svg>
                     </a>
                     <Link
-                      href={isDashboardSubdomain ? 'https://exale.net/profile' : '/profile'}
+                      href={isDashboardSubdomain ? `${SITE_URL}/profile` : '/profile'}
                       className="flex items-center gap-2 rounded-full overflow-hidden shrink-0 ml-2 border border-gray-200 dark:border-gray-600 hover:opacity-90 transition-opacity"
                       aria-label="Profile (sign out from profile page)"
                     >

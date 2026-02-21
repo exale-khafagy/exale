@@ -56,8 +56,8 @@ export default function RootLayout({
                     'window.dataLayer = window.dataLayer || [];',
                     'function gtag(){dataLayer.push(arguments);}',
                     "gtag('js', new Date());",
-                    "gtag('consent', 'default', { analytics_storage: 'denied', ad_storage: 'denied' });",
-                    `gtag('config', '${GA_ID}', { send_page_view: false });`,
+                    "gtag('consent', 'default', { analytics_storage: 'granted', ad_storage: 'granted' });",
+                    `gtag('config', '${GA_ID}', { send_page_view: true });`,
                   ].join('\n'),
                 }}
               />
