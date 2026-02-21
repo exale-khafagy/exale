@@ -12,7 +12,8 @@ import { ourFileRouter } from '@/app/api/uploadthing/core';
 import './globals.css';
 import '@uploadthing/react/styles.css';
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+// Inline fallback so tag loads even if Vercel doesn't inject NEXT_PUBLIC_* at build (e.g. monorepo)
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? 'G-39KEHMNYXV';
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -51,9 +52,9 @@ export default function RootLayout({
             <>
               <Script
                 src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-                strategy="afterInteractive"
+                strategy="beforeInteractive"
               />
-              <Script id="gtag-init" strategy="afterInteractive">
+              <Script id="gtag-init" strategy="beforeInteractive">
                 {`
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
