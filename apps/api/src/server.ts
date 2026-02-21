@@ -25,7 +25,21 @@ async function getApp() {
       origin: origins.length ? origins : requiredOrigins,
       credentials: true,
       methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+      allowedHeaders: [
+        'Content-Type',
+        'Accept',
+        'Authorization',
+        'X-Requested-With',
+        'X-CSRF-Token',
+        'Accept-Version',
+        'Content-Length',
+        'Content-MD5',
+        'Date',
+        'X-Api-Version',
+        'rsc',
+        'next-router-state-tree',
+        'next-router-prefetch',
+      ],
       optionsSuccessStatus: 204,
     });
     await app.init();
@@ -35,5 +49,10 @@ async function getApp() {
 
 export default async function handler(req: unknown, res: unknown) {
   const express = await getApp();
+  // Vercel rewrites /(.*) → /api/$1, so req.url is /api/profile/me. Nest routes expect /profile/me.
+  const rawReq = req as { url?: string };
+  if (rawReq.url?.startsWith('/api')) {
+    rawReq.url = rawReq.url.slice(4) || '/';
+  }
   return express(req, res);
 }
