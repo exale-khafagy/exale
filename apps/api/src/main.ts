@@ -15,54 +15,48 @@ if (dsn) {
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.set('trust proxy', 1);
-  const envOrigins = process.env.CORS_ORIGIN?.split(',')
-    .map((o) => o.trim())
-    .filter(Boolean);
-  const devOrigins = [
-    'http://localhost:3000',
-    'http://dashboard.localhost:3000',
-    'http://127.0.0.1:3000',
-  ];
-  // Frontend origins (profile at https://exale.net/profile, dashboard, etc.)
-  const productionOrigins = [
-    'https://exale.net',
-    'https://www.exale.net',
-    'https://hub.exale.net',
-    'https://api.exale.net',
-    'https://dashboard.exale.net',
-  ];
-  const origins =
-    process.env.NODE_ENV === 'development'
-      ? [...new Set([...(envOrigins ?? []), ...devOrigins])]
-      : [...new Set([...(envOrigins ?? []), ...productionOrigins])];
+  // const envOrigins = process.env.CORS_ORIGIN?.split(',')
+  //   .map((o) => o.trim())
+  //   .filter(Boolean);
+  // const devOrigins = [
+  //   'http://localhost:3000',
+  //   'http://dashboard.localhost:3000',
+  //   'http://127.0.0.1:3000',
+  // ];
+  // // Frontend origins (profile at https://exale.net/profile, dashboard, etc.)
+  // const productionOrigins = [
+  //   'https://exale.net',
+  //   'https://www.exale.net',
+  //   'https://hub.exale.net',
+  //   'https://api.exale.net',
+  //   'https://dashboard.exale.net',
+  // ];
+  // const origins =
+  //   process.env.NODE_ENV === 'development'
+  //     ? [...new Set([...(envOrigins ?? []), ...devOrigins])]
+  //     : [...new Set([...(envOrigins ?? []), ...productionOrigins])];
 
-  console.log('origins', origins);
-  console.log('devOrigins', devOrigins);
-  console.log('productionOrigins', productionOrigins);
-  console.log('envOrigins', envOrigins);
-  console.log('process.env', process.env);
-
-  app.enableCors({
-    origin: origins.length ? origins : [...devOrigins, ...productionOrigins],
-    credentials: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'X-Requested-With',
-      'X-CSRF-Token',
-      'Accept-Version',
-      'Content-Length',
-      'Content-MD5',
-      'Date',
-      'X-Api-Version',
-      'rsc',
-      'next-router-state-tree',
-      'next-router-prefetch',
-    ],
-    optionsSuccessStatus: 204,
-  });
+  // app.enableCors({
+  //   origin: origins.length ? origins : [...devOrigins, ...productionOrigins],
+  //   credentials: true,
+  //   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  //   allowedHeaders: [
+  //     'Content-Type',
+  //     'Accept',
+  //     'Authorization',
+  //     'X-Requested-With',
+  //     'X-CSRF-Token',
+  //     'Accept-Version',
+  //     'Content-Length',
+  //     'Content-MD5',
+  //     'Date',
+  //     'X-Api-Version',
+  //     'rsc',
+  //     'next-router-state-tree',
+  //     'next-router-prefetch',
+  //   ],
+  //   optionsSuccessStatus: 204,
+  // });
   const port = process.env.PORT ?? 3002;
   await app.listen(port);
 }
