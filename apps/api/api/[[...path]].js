@@ -78,6 +78,14 @@ module.exports = async function handler(req, res) {
     return;
   }
 
+  // Set CORS on actual requests too so response has correct Allow-Origin (Vercel may not use Nest's headers)
+  res.setHeader('Access-Control-Allow-Methods', CORS_ALLOW_METHODS);
+  res.setHeader('Access-Control-Allow-Headers', CORS_ALLOW_HEADERS);
+  if (allowedOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+
   const raw = req.url || req.originalUrl || '';
   const { path: pathPart, query: queryPart } = getPathAndQuery(raw);
   let path = pathPart;
