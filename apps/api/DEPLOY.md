@@ -2,22 +2,22 @@
 
 ## CORS preflight: "It does not have HTTP ok status"
 
-If the browser shows **"Response to preflight request doesn't pass access control check: It does not have HTTP ok status"**, the **OPTIONS** request is getting a non-2xx (usually **403**) before it reaches this app.
+If the browser shows **"Response to preflight request doesn't pass access control check: It does not have HTTP ok status"**, the **OPTIONS** request was getting a non-2xx (e.g. **403**) before reaching the app.
 
-### Fix (Vercel)
+### Current fix: Edge Middleware
 
-1. Open **Vercel Dashboard** and select **the project that serves `api.exale.net`** (not the main marketing site).
-2. **Settings** → **Deployment Protection**.
-3. Under **OPTIONS Allowlist**:
-   - Turn the toggle **ON** (enable the allowlist).
-   - Click **Add path** and enter **`/`**.
-   - **Save**.
-4. Redeploy the API so the latest handler is live (or wait for the next deploy).
+**`middleware.js`** at the project root handles **OPTIONS** at the **edge** (before Deployment Protection). It returns **200** with CORS headers so preflight passes. No dashboard change required.
 
-After this, OPTIONS requests will bypass protection and hit the serverless handler, which returns **200** with CORS headers so the real GET/POST can run.
+After deploying, OPTIONS should succeed. If it still fails:
 
-### If it still fails
+1. Confirm the **API** project (the one for `api.exale.net`) is the one you deploy from this `apps/api` folder.
+2. Redeploy so the new `middleware.js` and `@vercel/functions` are included.
+3. In the browser **Network** tab, inspect the **OPTIONS** request: **Status** should be **200** and **Response Headers** should include `Access-Control-Allow-Origin: https://exale.net`.
 
-- Confirm you changed settings on the **API** project (the one whose production URL is `api.exale.net`), not the web project.
-- Trigger a new deployment after changing settings.
-- In the browser Network tab, check the **OPTIONS** request to `api.exale.net/...`: look at **Status** (e.g. 403 vs 200) and **Response Headers** (e.g. `Access-Control-Allow-Origin`).
+### Fallback: OPTIONS Allowlist (if middleware doesn’t run)
+
+If your deployment doesn’t run Edge Middleware (e.g. project type or region), use the allowlist:
+
+1. **Vercel Dashboard** → project that serves **api.exale.net**.
+2. **Settings** → **Deployment Protection** → **OPTIONS Allowlist** → turn **ON** → add path **`/`** → **Save**.
+3. Redeploy.
