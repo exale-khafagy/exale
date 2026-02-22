@@ -49,4 +49,11 @@ export class ApplyService {
       data: { status },
     });
   }
+
+  async remove(id: string) {
+    await this.prisma.applicationSubmission.delete({
+      where: { id },
+    });
+    return { deleted: true };
+  }
 }

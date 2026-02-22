@@ -20,6 +20,7 @@ const CORS_ALLOW_HEADERS = [
   'rsc',
   'next-router-state-tree',
   'next-router-prefetch',
+  'next-url',
 ].join(', ');
 
 function getCorsOrigin(origin: string | null): string | null {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { SubmissionStatus } from '@prisma/client';
 import { EditorGuard } from '../auth/editor.guard';
@@ -43,5 +43,11 @@ export class ApplyController {
   @UseGuards(EditorGuard)
   updateStatus(@Param('id') id: string, @Body() body: { status: SubmissionStatus }) {
     return this.apply.updateStatus(id, body.status);
+  }
+
+  @Delete(':id')
+  @UseGuards(EditorGuard)
+  remove(@Param('id') id: string) {
+    return this.apply.remove(id);
   }
 }

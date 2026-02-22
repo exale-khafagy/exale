@@ -53,3 +53,13 @@ export async function apiPost(path: string, token: string, body: unknown): Promi
   if (res.status === 401) throw new Error('UNAUTHORIZED');
   return res;
 }
+
+export async function apiDelete(path: string, token: string): Promise<Response> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+  if (res.status === 401) throw new Error('UNAUTHORIZED');
+  return res;
+}

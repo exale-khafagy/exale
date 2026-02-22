@@ -2,7 +2,7 @@
 
 import { useAuth } from '@clerk/nextjs';
 import { useEffect, useMemo, useState } from 'react';
-import { apiGet } from '@/lib/api-auth';
+import { apiGet, apiPatch, apiDelete } from '@/lib/api-auth';
 
 interface ApplicationSubmission {
   id: string;
@@ -33,6 +33,8 @@ export default function InboxApplyPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEW' | 'READ'>('ALL');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -79,21 +81,17 @@ export default function InboxApplyPage() {
     fetchProfile();
   }, [selected?.email, getToken]);
 
+  function clearActionFeedback() {
+    setActionError(null);
+    setActionMessage(null);
+  }
+
   async function updateStatus(id: string, status: 'NEW' | 'READ') {
     const token = await getToken();
     if (!token) return;
+    clearActionFeedback();
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/apply/${id}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status }),
-        },
-      );
+      const res = await apiPatch(`/apply/${id}`, token, { status });
       if (res.ok) {
         setSubmissions((prev) =>
           prev.map((s) => (s.id === id ? { ...s, status } : s)),
@@ -101,9 +99,11 @@ export default function InboxApplyPage() {
         if (selected?.id === id) {
           setSelected({ ...selected, status });
         }
+      } else {
+        setActionError('Failed to update status');
       }
     } catch {
-      // swallow; optimistic UI
+      setActionError('Failed to update status');
     }
   }
 
@@ -153,30 +153,55 @@ export default function InboxApplyPage() {
   async function bulkUpdateStatus(target: 'NEW' | 'READ') {
     const token = await getToken();
     if (!token || selectedIds.length === 0) return;
+    clearActionFeedback();
     try {
-      await Promise.all(
+      const results = await Promise.all(
         selectedIds.map((id) =>
-          fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'}/apply/${id}`,
-            {
-              method: 'PATCH',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ status: target }),
-            },
-          ),
+          apiPatch(`/apply/${id}`, token, { status: target }).then((r) => ({ id, ok: r.ok })),
         ),
       );
-      setSubmissions((prev) =>
-        prev.map((s) => (selectedIds.includes(s.id) ? { ...s, status: target } : s)),
-      );
-      if (selected && selectedIds.includes(selected.id)) {
-        setSelected({ ...selected, status: target });
+      const failed = results.filter((r) => !r.ok).length;
+      if (failed > 0) {
+        setActionError(failed === selectedIds.length ? 'Failed to update' : `Failed to update ${failed} of ${selectedIds.length}`);
+      } else {
+        setSubmissions((prev) =>
+          prev.map((s) => (selectedIds.includes(s.id) ? { ...s, status: target } : s)),
+        );
+        if (selected && selectedIds.includes(selected.id)) {
+          setSelected({ ...selected, status: target });
+        }
+        setActionMessage(`Marked as ${target.toLowerCase()}`);
+        setTimeout(clearActionFeedback, 3000);
       }
     } catch {
-      // ignore errors; state already updated
+      setActionError('Failed to update. Check your connection.');
+    }
+  }
+
+  async function bulkDelete() {
+    const token = await getToken();
+    if (!token || selectedIds.length === 0) return;
+    if (!confirm(`Delete ${selectedIds.length} application(s)? This cannot be undone.`)) return;
+    clearActionFeedback();
+    try {
+      const results = await Promise.all(
+        selectedIds.map((id) =>
+          apiDelete(`/apply/${id}`, token).then((r) => ({ id, ok: r.ok })),
+        ),
+      );
+      const failed = results.filter((r) => !r.ok).length;
+      if (failed > 0) {
+        setActionError(failed === selectedIds.length ? 'Failed to delete' : `Failed to delete ${failed} of ${selectedIds.length}`);
+      } else {
+        const okIds = results.filter((r) => r.ok).map((r) => r.id);
+        setSubmissions((prev) => prev.filter((s) => !okIds.includes(s.id)));
+        if (selected && okIds.includes(selected.id)) setSelected(null);
+        setSelectedIds((prev) => prev.filter((id) => !okIds.includes(id)));
+        setActionMessage('Deleted');
+        setTimeout(clearActionFeedback, 3000);
+      }
+    } catch {
+      setActionError('Failed to delete. Check your connection.');
     }
   }
 
@@ -321,33 +346,55 @@ export default function InboxApplyPage() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {(actionMessage || actionError) && (
+            <span
+              className={
+                actionError
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-green-600 dark:text-green-400'
+              }
+            >
+              {actionError || actionMessage}
+            </span>
+          )}
           {selectedIds.length > 0 && (
             <>
               <span className="text-gray-600 dark:text-gray-400">
                 {selectedIds.length} selected
               </span>
               <button
+                type="button"
                 onClick={() => bulkUpdateStatus('READ')}
                 className="px-3 py-1 rounded-lg bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900 hover:opacity-90"
               >
                 Mark read
               </button>
               <button
+                type="button"
                 onClick={() => bulkUpdateStatus('NEW')}
                 className="px-3 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700"
               >
                 Mark new
               </button>
               <button
-                onClick={() => setSelectedIds([])}
+                type="button"
+                onClick={bulkDelete}
+                className="px-3 py-1 rounded-lg bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+              >
+                Delete
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSelectedIds([]); clearActionFeedback(); }}
                 className="px-3 py-1 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                Clear
+                Clear selection
               </button>
             </>
           )}
           <button
+            type="button"
             onClick={exportCsv}
             className="ml-auto px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
