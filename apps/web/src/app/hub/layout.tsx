@@ -287,27 +287,28 @@ function HubLayoutContent({
                 aria-hidden
               />
 
-              {/* Sidebar - fixed overlay on mobile, static on desktop */}
+              {/* Sidebar - fixed so it never scrolls; dark background in both modes so logo is visible */}
               <aside
-                className={`fixed lg:relative inset-y-0 left-0 z-40 w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex flex-col transform transition-transform duration-200 ease-out shadow-lg lg:shadow-none ${
+                className={`fixed inset-y-0 left-0 z-40 w-64 border-r border-slate-600/50 dark:border-gray-700 bg-slate-800 dark:bg-gray-900 flex flex-col transform transition-transform duration-200 ease-out shadow-lg ${
                   sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
                 }`}
               >
-                <div className="p-5 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                <div className="p-5 border-b border-slate-600/50 dark:border-gray-800 flex items-center justify-between shrink-0">
                   <Link href={isDashboardSubdomain ? '/' : '/hub'} className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
                     <Image
                       src="/images/exale-logo.png"
                       alt="Exale Dashboard"
                       width={100}
                       height={36}
-                      className="h-8 w-auto object-contain dark:brightness-0 dark:invert"
+                      className="h-8 w-auto object-contain"
+                      unoptimized
                     />
-                    <span className="text-gray-500 dark:text-gray-400 text-xs font-medium ml-2">Dashboard</span>
+                    <span className="text-gray-300 dark:text-gray-400 text-xs font-medium ml-2">Dashboard</span>
                   </Link>
                   <button
                     type="button"
                     onClick={() => setSidebarOpen(false)}
-                    className="lg:hidden p-2 -mr-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                    className="lg:hidden p-2 -mr-2 text-gray-300 dark:text-gray-400 hover:text-white"
                     aria-label="Close menu"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -329,8 +330,8 @@ function HubLayoutContent({
                         onClick={() => setSidebarOpen(false)}
                         className={`block px-4 py-3 rounded-xl text-sm font-medium transition-colors min-h-[44px] flex items-center ${
                           isActive
-                            ? 'bg-royal-violet/10 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
-                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                            ? 'bg-royal-violet/20 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
+                            : 'text-gray-300 dark:text-gray-300 hover:bg-slate-700/50 dark:hover:bg-gray-800'
                         }`}
                       >
                         {item.label}
@@ -340,12 +341,13 @@ function HubLayoutContent({
                 </nav>
               </aside>
 
-              <div className="flex-1 flex flex-col min-w-0">
-                <header className="h-16 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between px-4 sm:px-6 gap-4">
+              {/* Main content: offset by sidebar width on desktop; only this area scrolls */}
+              <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+                <header className="sticky top-0 z-30 h-16 shrink-0 border-b border-slate-600/50 dark:border-gray-700 bg-slate-800 dark:bg-gray-900 flex items-center justify-between px-4 sm:px-6 gap-4">
                   <button
                     type="button"
                     onClick={() => setSidebarOpen(true)}
-                    className="lg:hidden p-2 -ml-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                    className="lg:hidden p-2 -ml-2 text-gray-300 dark:text-gray-400 hover:text-white transition-colors"
                     aria-label="Open menu"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,7 +358,7 @@ function HubLayoutContent({
                   <div className="flex items-center gap-2 sm:gap-4">
                     <button
                       onClick={toggleTheme}
-                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                      className="p-2 rounded-lg hover:bg-slate-700 dark:hover:bg-gray-800 text-gray-300 dark:text-gray-400 transition-colors"
                       aria-label="Toggle theme"
                     >
                       {theme === 'light' ? (
@@ -372,7 +374,7 @@ function HubLayoutContent({
                     <a
                       href={SITE_URL}
                       onClick={(e) => { e.preventDefault(); window.location.href = SITE_URL; }}
-                      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors shrink-0"
+                      className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white transition-colors shrink-0"
                     >
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -382,7 +384,7 @@ function HubLayoutContent({
                     <a
                       href={SITE_URL}
                       onClick={(e) => { e.preventDefault(); window.location.href = SITE_URL; }}
-                      className="sm:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-colors"
+                      className="sm:hidden p-2 rounded-lg hover:bg-slate-700 dark:hover:bg-gray-800 text-gray-300 dark:text-gray-400 transition-colors"
                       aria-label="Go to exale.net"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +393,7 @@ function HubLayoutContent({
                     </a>
                     <Link
                       href={isDashboardSubdomain ? `${SITE_URL}/profile` : '/profile'}
-                      className="flex items-center gap-2 rounded-full overflow-hidden shrink-0 ml-2 border border-gray-200 dark:border-gray-600 hover:opacity-90 transition-opacity"
+                      className="flex items-center gap-2 rounded-full overflow-hidden shrink-0 ml-2 border border-slate-600 dark:border-gray-600 hover:opacity-90 transition-opacity"
                       aria-label="Profile (sign out from profile page)"
                     >
                       {user?.imageUrl ? (
