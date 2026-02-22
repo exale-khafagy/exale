@@ -11,10 +11,11 @@ export class AdminController {
   @Get('check')
   @UseGuards(ClerkGuard)
   async checkMe(@Req() req: Request & { clerkId: string }) {
+    const isUser = !!req.clerkId;
     const admin = await this.admin.findAdminOrFounder(req.clerkId);
     const isAdmin = !!admin;
     const role = admin?.role ?? (isAdmin ? 'ADMIN' : null);
-    return { isAdmin, role };
+    return { isUser, isAdmin, role };
   }
 
   @Get()
