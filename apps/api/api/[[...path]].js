@@ -3,6 +3,10 @@
  * we strip the /api prefix so Nest receives /profile/me etc.
  * req.url can be path-only ("/api/profile/me") or full URL ("https://api.exale.net/api/profile/me").
  * OPTIONS preflight is handled here so the response always includes CORS headers (fixes Vercel CORS issues).
+ *
+ * If you see "preflight doesn't pass access control check: It does not have HTTP ok status",
+ * enable OPTIONS Allowlist in Vercel: Project → Settings → Deployment Protection →
+ * OPTIONS Allowlist → Enable → Add path "/" → Save. Otherwise OPTIONS are blocked (403) before this handler runs.
  */
 const nestHandler = require('../dist/src/server').default;
 
@@ -60,20 +64,26 @@ function getPathAndQuery(full) {
 }
 
 module.exports = async function handler(req, res) {
-  const origins = getAllowedOrigins();
-  const requestOrigin = req.headers && (req.headers.origin || req.headers.Origin);
-  const allowedOrigin =
-    (requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null) ||
-    (origins.includes('https://exale.net') ? 'https://exale.net' : origins[0]);
+  const method = (req.method || '').toUpperCase();
+  let origins;
+  let allowedOrigin = 'https://exale.net';
+  try {
+    origins = getAllowedOrigins();
+    const requestOrigin = req.headers && (req.headers.origin || req.headers.Origin);
+    allowedOrigin =
+      (requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null) ||
+      (origins.includes('https://exale.net') ? 'https://exale.net' : origins[0]);
+  } catch (_) {}
 
-  // Handle OPTIONS preflight so the response always has CORS headers (avoids "No Access-Control-Allow-Origin" on Vercel)
-  if (req.method === 'OPTIONS') {
-    res.statusCode = 204;
+  // Handle OPTIONS preflight first (case-insensitive); use 200 so edge never returns non-OK
+  if (method === 'OPTIONS') {
+    res.statusCode = 200;
     res.setHeader('Access-Control-Allow-Methods', CORS_ALLOW_METHODS);
     res.setHeader('Access-Control-Allow-Headers', CORS_ALLOW_HEADERS);
     res.setHeader('Access-Control-Max-Age', '86400');
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin || 'https://exale.net');
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Content-Length', '0');
     res.end();
     return;
   }
