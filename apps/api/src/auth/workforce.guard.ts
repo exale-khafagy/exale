@@ -8,10 +8,10 @@ import { createClerkClient, verifyToken } from '@clerk/backend';
 import { Request } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { AdminRole } from '@prisma/client';
-import { FOUNDER_EMAIL, hasDashboardAccess } from './constants';
+import { FOUNDER_EMAIL, hasWorkforceAccess } from './constants';
 
 @Injectable()
-export class EditorGuard implements CanActivate {
+export class WorkforceGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -70,13 +70,21 @@ export class EditorGuard implements CanActivate {
         }
       }
 
-      if (!admin) {
-        throw new UnauthorizedException('User is not an editor or admin');
+      if (!admin) throw new UnauthorizedException('User is not an admin');
+
+      // Ensure founder email always has FOUNDER role (migrate existing rows)
+      if (admin.email?.toLowerCase() === FOUNDER_EMAIL && admin.role !== AdminRole.FOUNDER) {
+        admin = await this.prisma.admin.update({
+          where: { clerkId },
+          data: { role: AdminRole.FOUNDER },
+        });
       }
 
       const role = admin.role ?? AdminRole.ADMIN;
-      if (!hasDashboardAccess(role)) {
-        throw new UnauthorizedException('Insufficient permissions');
+      if (!hasWorkforceAccess(role)) {
+        throw new UnauthorizedException(
+          'Workforce access is restricted to Founder and Tier 2 Admin',
+        );
       }
 
       (request as Request & { clerkId: string; role: AdminRole }).clerkId =

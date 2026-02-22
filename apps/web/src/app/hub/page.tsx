@@ -4,7 +4,10 @@ import { useAuth } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api-auth';
 import { useHubPath } from '@/lib/useHubPath';
+import { useHubRole } from '@/app/hub/layout';
 import Link from 'next/link';
+
+const WORKFORCE_ROLES = ['FOUNDER', 'TIER2_ADMIN'] as const;
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
@@ -17,10 +20,12 @@ interface Stats {
 
 export default function HubPage() {
   const { getToken } = useAuth();
+  const role = useHubRole();
   const inboxPath = useHubPath('/hub/inbox');
   const applyPath = useHubPath('/hub/apply');
   const cmsPath = useHubPath('/hub/cms');
   const adminsPath = useHubPath('/hub/admins');
+  const canAccessWorkforce = role && WORKFORCE_ROLES.includes(role);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -175,14 +180,16 @@ export default function HubPage() {
           <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">Edit website content</p>
         </Link>
 
-        <Link
-          href={adminsPath}
-          className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-card hover:shadow-card-hover hover:border-royal-violet/40 transition-all duration-200"
-        >
-          <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">Admin Users</h3>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">—</p>
-          <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">Manage access</p>
-        </Link>
+        {canAccessWorkforce && (
+          <Link
+            href={adminsPath}
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-6 shadow-card hover:shadow-card-hover hover:border-royal-violet/40 transition-all duration-200"
+          >
+            <h3 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-2">Workforce</h3>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white">—</p>
+            <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">Manage team access</p>
+          </Link>
+        )}
       </div>
 
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6">

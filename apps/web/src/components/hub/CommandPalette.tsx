@@ -15,7 +15,7 @@ const hubItems = [
   { hub: '/hub/cms', subdomain: '/cms', label: 'Content' },
   { hub: '/hub/seo', subdomain: '/seo', label: 'SEO' },
   { hub: '/hub/activity', subdomain: '/activity', label: 'Activity' },
-  { hub: '/hub/admins', subdomain: '/admins', label: 'Admins' },
+  { hub: '/hub/admins', subdomain: '/admins', label: 'Workforce' },
   { hub: '/hub/settings', subdomain: '/settings', label: 'Settings' },
 ];
 

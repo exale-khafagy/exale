@@ -4,26 +4,61 @@ import { SignedIn, SignedOut, RedirectToSignIn, SignOutButton, useAuth, useUser 
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api-auth';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { CommandPalette } from '@/components/hub/CommandPalette';
+
+const HubAuthContext = createContext<{ role: HubRole | null }>({ role: null });
+export function useHubRole() {
+  return useContext(HubAuthContext).role;
+}
 
 const DASHBOARD_HOST = process.env.NEXT_PUBLIC_DASHBOARD_HOST || 'dashboard.exale.net';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://exale.net';
 
-const navItemsAll = [
-  { hub: '/hub', subdomain: '/', label: 'Overview' },
-  { hub: '/hub/inbox', subdomain: '/inbox', label: 'Contact Inbox' },
-  { hub: '/hub/apply', subdomain: '/apply', label: 'Applications' },
-  { hub: '/hub/analytics', subdomain: '/analytics', label: 'Analytics' },
-  { hub: '/hub/media', subdomain: '/media', label: 'Media' },
-  { hub: '/hub/cms', subdomain: '/cms', label: 'Content' },
-  { hub: '/hub/seo', subdomain: '/seo', label: 'SEO' },
-  { hub: '/hub/activity', subdomain: '/activity', label: 'Activity' },
-  { hub: '/hub/admins', subdomain: '/admins', label: 'Admins', adminOnly: true },
-  { hub: '/hub/settings', subdomain: '/settings', label: 'Settings', adminOnly: true },
+export type HubRole =
+  | 'FOUNDER'
+  | 'TIER2_ADMIN'
+  | 'ADMIN'
+  | 'MODERATOR'
+  | 'CONTENT_WRITER'
+  | 'SEO'
+  | 'EDITOR';
+
+const ROLES_WORKFORCE: HubRole[] = ['FOUNDER', 'TIER2_ADMIN'];
+const ROLES_SETTINGS: HubRole[] = ['FOUNDER', 'TIER2_ADMIN', 'ADMIN'];
+const ROLES_INBOX_APPLY: HubRole[] = ['FOUNDER', 'TIER2_ADMIN', 'ADMIN', 'MODERATOR'];
+const ROLES_MEDIA: HubRole[] = ['FOUNDER', 'TIER2_ADMIN', 'ADMIN', 'MODERATOR', 'CONTENT_WRITER'];
+const ROLES_CONTENT: HubRole[] = ['FOUNDER', 'TIER2_ADMIN', 'ADMIN', 'CONTENT_WRITER', 'SEO'];
+const ROLES_SEO: HubRole[] = ['FOUNDER', 'TIER2_ADMIN', 'ADMIN', 'SEO'];
+const ROLES_ALL: HubRole[] = [
+  'FOUNDER',
+  'TIER2_ADMIN',
+  'ADMIN',
+  'MODERATOR',
+  'CONTENT_WRITER',
+  'SEO',
+  'EDITOR',
+];
+
+const navItemsAll: Array<{
+  hub: string;
+  subdomain: string;
+  label: string;
+  allowedRoles: HubRole[];
+}> = [
+  { hub: '/hub', subdomain: '/', label: 'Overview', allowedRoles: ROLES_ALL },
+  { hub: '/hub/inbox', subdomain: '/inbox', label: 'Contact Inbox', allowedRoles: ROLES_INBOX_APPLY },
+  { hub: '/hub/apply', subdomain: '/apply', label: 'Applications', allowedRoles: ROLES_INBOX_APPLY },
+  { hub: '/hub/analytics', subdomain: '/analytics', label: 'Analytics', allowedRoles: ROLES_ALL },
+  { hub: '/hub/media', subdomain: '/media', label: 'Media', allowedRoles: ROLES_MEDIA },
+  { hub: '/hub/cms', subdomain: '/cms', label: 'Content', allowedRoles: ROLES_CONTENT },
+  { hub: '/hub/seo', subdomain: '/seo', label: 'SEO', allowedRoles: ROLES_SEO },
+  { hub: '/hub/activity', subdomain: '/activity', label: 'Activity', allowedRoles: ROLES_ALL },
+  { hub: '/hub/admins', subdomain: '/admins', label: 'Workforce', allowedRoles: ROLES_WORKFORCE },
+  { hub: '/hub/settings', subdomain: '/settings', label: 'Settings', allowedRoles: ROLES_SETTINGS },
 ];
 
 function AccessDeniedScreen({ siteUrl }: { siteUrl: string }) {
@@ -69,11 +104,13 @@ function HubLayoutContent({
   const { user } = useUser();
   const { theme, toggleTheme } = useTheme();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [role, setRole] = useState<'EDITOR' | 'ADMIN' | null>(null);
+  const [role, setRole] = useState<HubRole | null>(null);
   const [checking, setChecking] = useState(true);
   const [isDashboardSubdomain, setIsDashboardSubdomain] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navItems = navItemsAll.filter((i) => !('adminOnly' in i && i.adminOnly) || role === 'ADMIN');
+  const navItems = navItemsAll.filter(
+    (i) => role && i.allowedRoles.includes(role),
+  );
 
   useEffect(() => {
     const host = typeof window !== 'undefined' ? window.location.hostname : '';
@@ -109,7 +146,10 @@ function HubLayoutContent({
         // If /admin/check fails or returns false for founder, ProfileSync may still be running - retry once.
         async function doCheck(retryDelay?: number) {
           if (retryDelay) await new Promise((r) => setTimeout(r, retryDelay));
-          const result = await apiGet<{ isAdmin: boolean; role?: 'EDITOR' | 'ADMIN' }>('/admin/check', authToken);
+          const result = await apiGet<{
+            isAdmin: boolean;
+            role?: HubRole | string;
+          }>('/admin/check', authToken);
           if (!result.isAdmin && isFounderEmail && !retryDelay) {
             return doCheck(2000);
           }
@@ -118,7 +158,8 @@ function HubLayoutContent({
         try {
           const result = await doCheck();
           setIsAdmin(result.isAdmin);
-          setRole(result.role ?? (result.isAdmin ? 'ADMIN' : null));
+          const roleVal = (result.role as HubRole) ?? (result.isAdmin ? 'ADMIN' : null);
+          setRole(roleVal);
           if (!result.isAdmin && !isFounderEmail) {
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
               window.location.href = SITE_URL;
@@ -127,21 +168,50 @@ function HubLayoutContent({
             }
           } else if (!result.isAdmin && isFounderEmail) {
             setIsAdmin(true);
-            setRole('ADMIN');
+            setRole('FOUNDER');
           }
-          // Redirect editors away from admin-only pages (compute host client-side)
+          // Redirect away from pages this role cannot access
           const host = typeof window !== 'undefined' ? window.location.hostname : '';
           const isSub = host === DASHBOARD_HOST || host === 'dashboard.localhost';
-          const adminsPath = isSub ? '/admins' : '/hub/admins';
+          const workforcePath = isSub ? '/admins' : '/hub/admins';
           const settingsPath = isSub ? '/settings' : '/hub/settings';
           const hubPath = isSub ? '/' : '/hub';
-          if (result.isAdmin && result.role === 'EDITOR' && (pathname === adminsPath || pathname === settingsPath)) {
-            router.push(hubPath);
+          if (result.isAdmin && roleVal) {
+            if (pathname === workforcePath && !ROLES_WORKFORCE.includes(roleVal)) {
+              router.push(hubPath);
+            } else if (pathname === settingsPath && !ROLES_SETTINGS.includes(roleVal)) {
+              router.push(hubPath);
+            } else if (
+              pathname?.startsWith(isSub ? '/inbox' : '/hub/inbox') &&
+              !ROLES_INBOX_APPLY.includes(roleVal)
+            ) {
+              router.push(hubPath);
+            } else if (
+              pathname?.startsWith(isSub ? '/apply' : '/hub/apply') &&
+              !ROLES_INBOX_APPLY.includes(roleVal)
+            ) {
+              router.push(hubPath);
+            } else if (
+              pathname?.startsWith(isSub ? '/media' : '/hub/media') &&
+              !ROLES_MEDIA.includes(roleVal)
+            ) {
+              router.push(hubPath);
+            } else if (
+              pathname?.startsWith(isSub ? '/cms' : '/hub/cms') &&
+              !ROLES_CONTENT.includes(roleVal)
+            ) {
+              router.push(hubPath);
+            } else if (
+              pathname?.startsWith(isSub ? '/seo' : '/hub/seo') &&
+              !ROLES_SEO.includes(roleVal)
+            ) {
+              router.push(hubPath);
+            }
           }
         } catch (err) {
           if (isFounderEmail) {
             setIsAdmin(true);
-            setRole('ADMIN');
+            setRole('FOUNDER');
           } else {
             setIsAdmin(false);
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
@@ -155,7 +225,7 @@ function HubLayoutContent({
         // If all checks fail but user is founder, allow access
         if (isFounderEmail) {
           setIsAdmin(true);
-          setRole('ADMIN');
+          setRole('FOUNDER');
         } else {
           setIsAdmin(false);
           if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
@@ -204,6 +274,7 @@ function HubLayoutContent({
         {isAdmin === false ? (
           <AccessDeniedScreen siteUrl={SITE_URL} />
         ) : (
+          <HubAuthContext.Provider value={{ role }}>
           <>
             <CommandPalette />
             <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -337,6 +408,7 @@ function HubLayoutContent({
               </div>
             </div>
           </>
+          </HubAuthContext.Provider>
         )}
       </SignedIn>
     </>

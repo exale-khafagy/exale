@@ -1,9 +1,21 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { createClerkClient } from '@clerk/backend';
 import { AdminRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { FOUNDER_EMAIL, isFounderRoleOrEmail } from '../auth/constants';
 
-const FOUNDER_EMAIL = 'khafagy.ahmedibrahim@gmail.com';
+const WORKFORCE_ASSIGNABLE_ROLES: AdminRole[] = [
+  AdminRole.TIER2_ADMIN,
+  AdminRole.ADMIN,
+  AdminRole.MODERATOR,
+  AdminRole.CONTENT_WRITER,
+  AdminRole.SEO,
+  AdminRole.EDITOR,
+];
 
 @Injectable()
 export class AdminService {
@@ -25,8 +37,8 @@ export class AdminService {
     if (email) {
       admin = await this.prisma.admin.upsert({
         where: { clerkId },
-        create: { clerkId, email, role: AdminRole.ADMIN },
-        update: { email, role: AdminRole.ADMIN },
+        create: { clerkId, email, role: AdminRole.FOUNDER },
+        update: { email, role: AdminRole.FOUNDER },
       });
       return admin;
     }
@@ -70,10 +82,22 @@ export class AdminService {
     return this.prisma.admin.findFirst({ where: { email } });
   }
 
-  async create(clerkId: string, email: string, role?: 'EDITOR' | 'ADMIN') {
+  async create(
+    clerkId: string,
+    email: string,
+    role?: AdminRole | keyof typeof AdminRole,
+  ) {
+    const roleVal = role
+      ? (WORKFORCE_ASSIGNABLE_ROLES.includes(role as AdminRole)
+          ? (role as AdminRole)
+          : AdminRole.ADMIN)
+      : AdminRole.ADMIN;
+    if (roleVal === AdminRole.FOUNDER) {
+      throw new ForbiddenException('Cannot assign Founder role via Workforce');
+    }
+
     let profile = await this.prisma.profile.findUnique({ where: { clerkId } });
     if (!profile) {
-      // Create profile on-the-fly so admins can be added for users who haven't signed in yet
       profile = await this.prisma.profile.upsert({
         where: { clerkId },
         create: { clerkId, email: email.trim() },
@@ -81,19 +105,52 @@ export class AdminService {
       });
     }
 
-    const roleVal = role ?? 'ADMIN';
     return this.prisma.admin.upsert({
       where: { clerkId },
-      create: { clerkId, email, role: roleVal },
-      update: { email, role: roleVal },
+      create: { clerkId, email: email.trim(), role: roleVal },
+      update: { email: email.trim(), role: roleVal },
     });
   }
 
-  async remove(clerkId: string) {
-    const admin = await this.prisma.admin.findUnique({ where: { clerkId } });
-    if (!admin) {
-      throw new NotFoundException('Admin not found');
+  async updateRole(
+    clerkId: string,
+    role: AdminRole | keyof typeof AdminRole,
+  ) {
+    const r =
+      role && WORKFORCE_ASSIGNABLE_ROLES.includes(role as AdminRole)
+        ? (role as AdminRole)
+        : AdminRole.ADMIN;
+    if (r === AdminRole.FOUNDER) {
+      throw new ForbiddenException('Cannot assign Founder role via Workforce');
     }
-    return this.prisma.admin.delete({ where: { clerkId } });
+    const admin = await this.prisma.admin.findUnique({ where: { clerkId } });
+    if (!admin) throw new NotFoundException('Admin not found');
+    return this.prisma.admin.update({
+      where: { clerkId },
+      data: { role: r },
+    });
+  }
+
+  async remove(clerkIdToRemove: string, requestUserClerkId: string) {
+    const target = await this.prisma.admin.findUnique({
+      where: { clerkId: clerkIdToRemove },
+    });
+    if (!target) throw new NotFoundException('Admin not found');
+
+    if (isFounderRoleOrEmail(target.role, target.email)) {
+      const requester = await this.prisma.admin.findUnique({
+        where: { clerkId: requestUserClerkId },
+      });
+      if (
+        !requester ||
+        !isFounderRoleOrEmail(requester.role, requester.email)
+      ) {
+        throw new ForbiddenException(
+          'Only the Founder can remove the Founder from the workforce',
+        );
+      }
+    }
+
+    return this.prisma.admin.delete({ where: { clerkId: clerkIdToRemove } });
   }
 }

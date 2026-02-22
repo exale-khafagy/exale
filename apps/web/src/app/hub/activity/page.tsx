@@ -133,7 +133,7 @@ export default function ActivityPage() {
     contact: 'Contacts',
     application: 'Applications',
     media: 'Media',
-    admin: 'Admins',
+    admin: 'Workforce',
   };
 
   const typeColors: Record<ActivityType, string> = {

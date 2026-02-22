@@ -27,18 +27,23 @@ model Profile {
   updatedAt   DateTime @updatedAt
 }
 
-// Admin users (synced from Clerk) — role: editor (content/media/inbox) | admin (full access)
+// Workforce & dashboard roles. Founder = full access + workforce; Tier2 = same but can't remove founder.
 model Admin {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId  String   @unique
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId  String    @unique
   email    String
   role     AdminRole @default(ADMIN)
   createdAt DateTime @default(now())
 }
 
 enum AdminRole {
-  EDITOR
-  ADMIN
+  FOUNDER        // Full access + Workforce; cannot be removed
+  TIER2_ADMIN    // Same as founder except cannot remove founder
+  ADMIN          // Full dashboard except Workforce
+  MODERATOR      // Contact Inbox, Analytics, Applications, Media
+  CONTENT_WRITER // Content, Analytics, Media
+  SEO            // SEO, Analytics, Content
+  EDITOR         // @deprecated — treated as MODERATOR for access
 }
 
 // CMS content blocks - all editable text/images from Dashboard
