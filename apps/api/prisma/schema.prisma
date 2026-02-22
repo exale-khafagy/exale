@@ -11,20 +11,20 @@ datasource db {
 }
 
 // User profiles (synced from Clerk, editable by user)
+// Main entries: Phone, Company, Title. Social channels optional (platform + url, multiple).
 model Profile {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  clerkId     String   @unique
-  email       String
-  firstName   String?
-  lastName    String?
-  avatarUrl   String?
-  phone       String?
-  companyName String?
-  linkedInUrl String?
-  twitterUrl  String?
-  instagramUrl String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId         String   @unique
+  email           String
+  firstName       String?
+  lastName        String?
+  avatarUrl       String?
+  phone           String?
+  companyName     String?
+  title           String?
+  socialChannels  Json?    // [{ platform: string, url: string }, ...]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 // Workforce & dashboard roles. Founder = full access + workforce; Tier2 = same but can't remove founder.

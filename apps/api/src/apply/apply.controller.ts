@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { SubmissionStatus } from '@prisma/client';
 import { EditorGuard } from '../auth/editor.guard';
@@ -13,18 +13,25 @@ export class ApplyController {
   create(
     @Body()
     body: {
-      name: string;
-      email: string;
-      phone: string;
-      industry: string;
-      message: string;
+      name?: string;
+      email?: string;
+      phone?: string;
+      industry?: string;
+      message?: string;
       fileUrl?: string;
       honeypot?: string;
     },
   ) {
     if (body.honeypot) return { id: 'ok' }; // Bot trap – reject silently
-    const { honeypot: _, ...dto } = body;
-    return this.apply.create(dto);
+    const name = body.name?.trim();
+    const email = body.email?.trim();
+    const phone = body.phone?.trim();
+    const industry = body.industry?.trim();
+    const message = body.message?.trim();
+    if (!name || !email || !phone || !industry || !message) {
+      throw new BadRequestException('All fields are required except attachment: name, email, phone, industry, message.');
+    }
+    return this.apply.create({ name, email, phone, industry, message, fileUrl: body.fileUrl });
   }
 
   @Get()
