@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@clerk/nextjs';
-import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { apiGet } from '@/lib/api-auth';
 
@@ -40,8 +39,8 @@ export default function InboxApplyPage() {
       const token = await getToken();
       if (!token) return;
       try {
-        const data = await apiGet<ApplicationSubmission[]>('/apply', token);
-        setSubmissions(data);
+        const data = await apiGet<ApplicationSubmission[] | unknown>('/apply', token);
+        setSubmissions(Array.isArray(data) ? data : []);
         setError(null);
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Failed to load.';
@@ -109,8 +108,9 @@ export default function InboxApplyPage() {
   }
 
   const filteredSubmissions = useMemo(() => {
+    const list = Array.isArray(submissions) ? submissions : [];
     const term = search.trim().toLowerCase();
-    return submissions.filter((s) => {
+    return list.filter((s) => {
       const normalizedStatus =
         s.status === 'NEW' || s.status === 'READ' ? s.status : 'NEW';
       const matchesStatus =
@@ -262,8 +262,8 @@ export default function InboxApplyPage() {
             const token = await getToken();
             if (!token) return;
             try {
-              const data = await apiGet<ApplicationSubmission[]>('/apply', token);
-              setSubmissions(data);
+              const data = await apiGet<ApplicationSubmission[] | unknown>('/apply', token);
+              setSubmissions(Array.isArray(data) ? data : []);
               setError(null);
             } catch (e) {
               const msg = e instanceof Error ? e.message : 'Failed to load.';
@@ -300,7 +300,7 @@ export default function InboxApplyPage() {
         <div className="flex flex-wrap items-center gap-2">
           <input
             type="text"
-            placeholder="Search by name, email, phone, industry..."
+            placeholder="Search name, email, phone, industry..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full sm:w-64 max-w-xs px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-royal-violet/50"
@@ -390,13 +390,11 @@ export default function InboxApplyPage() {
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center">
                   <div className="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
-                    <Image
-                      src="/images/empty-tickets.png"
-                      alt="No applications"
-                      width={120}
-                      height={80}
-                      className="opacity-40"
-                    />
+                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center opacity-60">
+                      <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
                     <p>No applications yet.</p>
                   </div>
                 </td>
@@ -466,13 +464,11 @@ export default function InboxApplyPage() {
         {filteredSubmissions.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
             <div className="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
-              <Image
-                src="/images/empty-tickets.png"
-                alt="No applications"
-                width={120}
-                height={80}
-                className="opacity-40"
-              />
+              <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center opacity-60">
+                <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
               <p>No applications yet.</p>
             </div>
           </div>
