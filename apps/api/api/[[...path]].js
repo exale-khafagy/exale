@@ -62,7 +62,9 @@ function getPathAndQuery(full) {
 module.exports = async function handler(req, res) {
   const origins = getAllowedOrigins();
   const requestOrigin = req.headers && (req.headers.origin || req.headers.Origin);
-  const allowedOrigin = requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null;
+  const allowedOrigin =
+    (requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null) ||
+    (origins.includes('https://exale.net') ? 'https://exale.net' : origins[0]);
 
   // Handle OPTIONS preflight so the response always has CORS headers (avoids "No Access-Control-Allow-Origin" on Vercel)
   if (req.method === 'OPTIONS') {
@@ -70,10 +72,8 @@ module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', CORS_ALLOW_METHODS);
     res.setHeader('Access-Control-Allow-Headers', CORS_ALLOW_HEADERS);
     res.setHeader('Access-Control-Max-Age', '86400');
-    if (allowedOrigin) {
-      res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-    }
+    res.setHeader('Access-Control-Allow-Origin', allowedOrigin || 'https://exale.net');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.end();
     return;
   }
@@ -81,10 +81,8 @@ module.exports = async function handler(req, res) {
   // Set CORS on actual requests too so response has correct Allow-Origin (Vercel may not use Nest's headers)
   res.setHeader('Access-Control-Allow-Methods', CORS_ALLOW_METHODS);
   res.setHeader('Access-Control-Allow-Headers', CORS_ALLOW_HEADERS);
-  if (allowedOrigin) {
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  }
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin || 'https://exale.net');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   const raw = req.url || req.originalUrl || '';
   const { path: pathPart, query: queryPart } = getPathAndQuery(raw);
