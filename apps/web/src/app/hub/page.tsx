@@ -7,8 +7,6 @@ import { useHubPath } from '@/lib/useHubPath';
 import { useHubRole } from '@/app/hub/layout';
 import Link from 'next/link';
 
-const WORKFORCE_ROLES = ['FOUNDER', 'TIER2_ADMIN'] as const;
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
 interface Stats {
@@ -25,7 +23,7 @@ export default function HubPage() {
   const applyPath = useHubPath('/hub/apply');
   const cmsPath = useHubPath('/hub/cms');
   const adminsPath = useHubPath('/hub/admins');
-  const canAccessWorkforce = role && WORKFORCE_ROLES.includes(role);
+  const canAccessWorkforce = role === 'FOUNDER' || role === 'TIER2_ADMIN';
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
