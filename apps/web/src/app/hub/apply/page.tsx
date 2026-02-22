@@ -355,112 +355,21 @@ export default function InboxApplyPage() {
           </button>
         </div>
       </div>
-      {/* Desktop table */}
-      <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-            <tr>
-              <th className="px-4 py-3 w-10">
-                <input
-                  type="checkbox"
-                  checked={allVisibleSelected}
-                  onChange={toggleSelectAllVisible}
-                  className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-royal-violet focus:ring-royal-violet/50"
-                />
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Industry
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
-                Attachment
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {filteredSubmissions.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-12 text-center">
-                  <div className="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center opacity-60">
-                      <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <p>No applications yet.</p>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              filteredSubmissions.map((s) => (
-                <tr
-                  key={s.id}
-                  onClick={() => setSelected(s)}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors"
-                >
-                  <td className="px-4 py-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(s.id)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        toggleRowSelected(s.id);
-                      }}
-                      className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-royal-violet focus:ring-royal-violet/50"
-                    />
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(s.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-4 text-sm font-medium text-gray-900 dark:text-white">
-                    {s.name}
-                  </td>
-                  <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400">
-                    {s.industry}
-                  </td>
-                  <td className="px-4 py-4">
-                    <span
-                      className={`inline-flex px-2.5 py-1 text-xs font-semibold rounded-full ${
-                        (s.status === 'NEW' || !s.status)
-                          ? 'bg-royal-violet/10 text-royal-violet dark:bg-royal-violet/20 dark:text-royal-violet'
-                          : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
-                      }`}
-                    >
-                      {s.status || 'NEW'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4">
-                    {s.fileUrl ? (
-                      <a
-                        href={s.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-royal-violet hover:underline font-medium"
-                      >
-                        Download
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 dark:text-gray-500">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile card list */}
-      <div className="md:hidden space-y-3">
+      {/* Application list (same card layout on all screen sizes so desktop and mobile stay in sync) */}
+      {filteredSubmissions.length > 0 && (
+        <div className="flex items-center gap-2 mb-3">
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600 dark:text-gray-400">
+            <input
+              type="checkbox"
+              checked={allVisibleSelected}
+              onChange={toggleSelectAllVisible}
+              className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-royal-violet focus:ring-royal-violet/50"
+            />
+            Select all visible
+          </label>
+        </div>
+      )}
+      <div className="space-y-3">
         {filteredSubmissions.length === 0 ? (
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
             <div className="flex flex-col items-center gap-4 text-gray-500 dark:text-gray-400">
@@ -477,7 +386,7 @@ export default function InboxApplyPage() {
             <div
               key={s.id}
               onClick={() => setSelected(s)}
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm active:bg-gray-50 dark:active:bg-gray-700/50 cursor-pointer transition-colors"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700/50 active:bg-gray-50 dark:active:bg-gray-700/50 cursor-pointer transition-colors"
             >
               <div className="flex items-start gap-3">
                 <input
