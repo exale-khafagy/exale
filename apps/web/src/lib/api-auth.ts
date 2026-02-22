@@ -1,9 +1,10 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
-export async function apiGet<T>(path: string, token: string): Promise<T> {
+export async function apiGet<T>(path: string, token: string, options?: { cache?: RequestCache }): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     headers: { Authorization: `Bearer ${token}` },
     credentials: 'include',
+    cache: options?.cache ?? 'no-store',
   });
   if (res.status === 401) throw new Error('UNAUTHORIZED');
   if (!res.ok) {

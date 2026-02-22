@@ -26,7 +26,12 @@ const CORS_ALLOW_HEADERS = [
 function getAllowedOrigins() {
   const env = process.env.CORS_ORIGIN;
   const fromEnv = env ? env.split(',').map((o) => o.trim()).filter(Boolean) : [];
-  return [...new Set([...fromEnv, ...ALLOWED_ORIGINS])];
+  return [...new Set([...ALLOWED_ORIGINS, ...fromEnv])];
+}
+
+function normalizeOrigin(origin) {
+  if (!origin || typeof origin !== 'string') return '';
+  return origin.trim().replace(/\/$/, '') || origin.trim();
 }
 
 function getPathFromRequest(req) {
@@ -63,10 +68,10 @@ module.exports = async function handler(req, res) {
   let allowedOrigin = 'https://exale.net';
   try {
     const origins = getAllowedOrigins();
-    const requestOrigin = req.headers && (req.headers.origin || req.headers.Origin);
-    allowedOrigin =
-      (requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null) ||
-      (origins.includes('https://exale.net') ? 'https://exale.net' : origins[0]);
+    const rawOrigin = req.headers && (req.headers.origin || req.headers.Origin);
+    const requestOrigin = normalizeOrigin(rawOrigin);
+    const match = requestOrigin && origins.some((o) => normalizeOrigin(o) === requestOrigin);
+    allowedOrigin = match ? (origins.find((o) => normalizeOrigin(o) === requestOrigin) || requestOrigin) : 'https://exale.net';
   } catch (_) {}
 
   if (method === 'OPTIONS') {

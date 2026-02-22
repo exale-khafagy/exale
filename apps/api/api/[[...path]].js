@@ -41,7 +41,12 @@ const CORS_ALLOW_HEADERS = [
 function getAllowedOrigins() {
   const env = process.env.CORS_ORIGIN;
   const fromEnv = env ? env.split(',').map((o) => o.trim()).filter(Boolean) : [];
-  return [...new Set([...fromEnv, ...ALLOWED_ORIGINS])];
+  return [...new Set([...ALLOWED_ORIGINS, ...fromEnv])];
+}
+
+function normalizeOrigin(origin) {
+  if (!origin || typeof origin !== 'string') return '';
+  return origin.trim().replace(/\/$/, '') || origin.trim();
 }
 
 function getPathAndQuery(full) {
@@ -65,14 +70,13 @@ function getPathAndQuery(full) {
 
 module.exports = async function handler(req, res) {
   const method = (req.method || '').toUpperCase();
-  let origins;
   let allowedOrigin = 'https://exale.net';
   try {
-    origins = getAllowedOrigins();
-    const requestOrigin = req.headers && (req.headers.origin || req.headers.Origin);
-    allowedOrigin =
-      (requestOrigin && origins.includes(requestOrigin) ? requestOrigin : null) ||
-      (origins.includes('https://exale.net') ? 'https://exale.net' : origins[0]);
+    const origins = getAllowedOrigins();
+    const rawOrigin = req.headers && (req.headers.origin || req.headers.Origin);
+    const requestOrigin = normalizeOrigin(rawOrigin);
+    const match = requestOrigin && origins.some((o) => normalizeOrigin(o) === requestOrigin);
+    allowedOrigin = match ? (origins.find((o) => normalizeOrigin(o) === requestOrigin) || requestOrigin) : 'https://exale.net';
   } catch (_) {}
 
   // Handle OPTIONS preflight first (case-insensitive); use 200 so edge never returns non-OK

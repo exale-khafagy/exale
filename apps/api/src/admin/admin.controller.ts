@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Header, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { AdminGuard } from '../auth/admin.guard';
 import { ClerkGuard } from '../auth/clerk.guard';
@@ -13,6 +13,7 @@ export class AdminController {
   constructor(private readonly admin: AdminService) {}
 
   @Get('check')
+  @Header('Cache-Control', 'no-store, no-cache, must-revalidate')
   @UseGuards(ClerkGuard)
   async checkMe(@Req() req: Request & { clerkId: string }) {
     const isUser = !!req.clerkId;
