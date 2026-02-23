@@ -42,8 +42,10 @@ const HUB_PATH_MAP: Record<string, string> = {
   '/settings': '/hub/settings',
 };
 
-/** Dashboard paths on the subdomain (no /hub prefix). Main site should redirect these to dashboard host — but NOT "/" which is the marketing homepage. */
-const DASHBOARD_PATHS = new Set(Object.keys(HUB_PATH_MAP).filter((p) => p !== '/'));
+/** Paths that exist only on the dashboard (no marketing page). Main site redirects only these to dashboard host. Excludes "/" (homepage), "/media" (marketing Media page), and "/apply" (marketing Apply page). */
+const MAIN_SITE_REDIRECT_TO_DASHBOARD = new Set([
+  '/inbox', '/analytics', '/cms', '/seo', '/activity', '/admins', '/settings',
+]);
 
 function isDashboardHost(host: string | null): boolean {
   if (!host) return false;
@@ -79,7 +81,7 @@ async function subdomainMiddleware(request: NextRequest): Promise<NextResponse |
       return NextResponse.redirect(dashboardUrl.toString());
     }
     const pathNorm = path.replace(/\/$/, '') || '/';
-    if (DASHBOARD_PATHS.has(pathNorm)) {
+    if (MAIN_SITE_REDIRECT_TO_DASHBOARD.has(pathNorm)) {
       const dashboardUrl = new URL(pathNorm, `https://${DASHBOARD_HOST}`);
       dashboardUrl.search = url.search;
       return NextResponse.redirect(dashboardUrl.toString());
