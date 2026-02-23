@@ -4,7 +4,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api-auth';
 import { useHubPath } from '@/lib/useHubPath';
-import { useHubRole } from '@/app/hub/layout';
+import { useHubRole, HUB_MAIN_SITE_URL } from '@/app/hub/layout';
 import Link from 'next/link';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
@@ -212,9 +212,10 @@ export default function HubPage() {
             Edit Content
           </Link>
           <a
-            href="https://exale.net"
-            onClick={(e) => { e.preventDefault(); window.location.href = 'https://exale.net'; }}
+            href={HUB_MAIN_SITE_URL}
+            onClick={(e) => { e.preventDefault(); window.location.href = HUB_MAIN_SITE_URL; }}
             className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors inline-block"
+            rel="noopener noreferrer"
           >
             View Website
           </a>

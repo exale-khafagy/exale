@@ -10,11 +10,6 @@ import Link from 'next/link';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
 
-interface SocialChannel {
-  platform: string;
-  url: string;
-}
-
 interface Profile {
   id: string;
   clerkId: string;
@@ -24,23 +19,10 @@ interface Profile {
   avatarUrl: string | null;
   phone: string | null;
   companyName: string | null;
-  title: string | null;
-  socialChannels: SocialChannel[] | null;
+  linkedInUrl: string | null;
+  twitterUrl: string | null;
+  instagramUrl: string | null;
 }
-
-const SOCIAL_PLATFORMS = [
-  'LinkedIn',
-  'Twitter / X',
-  'Instagram',
-  'Facebook',
-  'GitHub',
-  'YouTube',
-  'Behance',
-  'Dribbble',
-  'Medium',
-  'Website',
-  'Other',
-] as const;
 
 const inputClass =
   'w-full px-4 py-3 rounded-xl bg-white/80 border border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-royal-violet focus:ring-2 focus:ring-royal-violet/20 outline-none transition-all';
@@ -59,8 +41,9 @@ export default function ProfilePage() {
   const [form, setForm] = useState({
     phone: '',
     companyName: '',
-    title: '',
-    socialChannels: [] as SocialChannel[],
+    linkedInUrl: '',
+    twitterUrl: '',
+    instagramUrl: '',
   });
 
   async function loadProfile() {
@@ -115,12 +98,12 @@ export default function ProfilePage() {
       const data = await loadProfile();
       setProfile(data);
       if (data) {
-        const channels = Array.isArray(data.socialChannels) ? data.socialChannels : [];
         setForm({
           phone: data.phone ?? '',
           companyName: data.companyName ?? '',
-          title: data.title ?? '',
-          socialChannels: channels.map((c: { platform?: string; url?: string }) => ({ platform: c.platform ?? 'Other', url: c.url ?? '' })),
+          linkedInUrl: data.linkedInUrl ?? '',
+          twitterUrl: data.twitterUrl ?? '',
+          instagramUrl: data.instagramUrl ?? '',
         });
       }
       setLoading(false);
@@ -136,12 +119,12 @@ export default function ProfilePage() {
     const data = await loadProfile();
     setProfile(data);
     if (data) {
-      const channels = Array.isArray(data.socialChannels) ? data.socialChannels : [];
       setForm({
         phone: data.phone ?? '',
         companyName: data.companyName ?? '',
-        title: data.title ?? '',
-        socialChannels: channels.map((c: { platform?: string; url?: string }) => ({ platform: c.platform ?? 'Other', url: c.url ?? '' })),
+        linkedInUrl: data.linkedInUrl ?? '',
+        twitterUrl: data.twitterUrl ?? '',
+        instagramUrl: data.instagramUrl ?? '',
       });
     }
     setRetrying(false);
@@ -155,12 +138,11 @@ export default function ProfilePage() {
     setMessage(null);
     try {
       await apiPut('/profile/me', token, {
-        phone: form.phone.trim() || undefined,
-        companyName: form.companyName.trim() || undefined,
-        title: form.title.trim() || undefined,
-        socialChannels: form.socialChannels.filter((c) => c.url.trim()).length
-          ? form.socialChannels.filter((c) => c.url.trim()).map((c) => ({ platform: c.platform, url: c.url.trim() }))
-          : undefined,
+        phone: form.phone || undefined,
+        companyName: form.companyName || undefined,
+        linkedInUrl: form.linkedInUrl || undefined,
+        twitterUrl: form.twitterUrl || undefined,
+        instagramUrl: form.instagramUrl || undefined,
       });
       setMessage('Profile updated.');
       const data = await apiGet<Profile>('/profile/me', token);
@@ -250,7 +232,7 @@ export default function ProfilePage() {
           const fields = [
             profile.phone,
             profile.companyName,
-            profile.title,
+            profile.linkedInUrl,
             profile.firstName || profile.lastName,
           ];
           const filled = fields.filter(Boolean).length;
@@ -357,16 +339,7 @@ export default function ProfilePage() {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  const ch = Array.isArray(profile.socialChannels) ? profile.socialChannels : [];
-                  setEditing(false);
-                  setForm({
-                    phone: profile.phone ?? '',
-                    companyName: profile.companyName ?? '',
-                    title: profile.title ?? '',
-                    socialChannels: ch.map((c: { platform?: string; url?: string }) => ({ platform: c.platform ?? 'Other', url: c.url ?? '' })),
-                  });
-                }}
+                onClick={() => { setEditing(false); setForm({ phone: profile.phone ?? '', companyName: profile.companyName ?? '', linkedInUrl: profile.linkedInUrl ?? '', twitterUrl: profile.twitterUrl ?? '', instagramUrl: profile.instagramUrl ?? '' }); }}
                 className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Cancel
@@ -384,78 +357,25 @@ export default function ProfilePage() {
                 <dd>{profile.companyName || '—'}</dd>
               </div>
               <div>
-                <dt className="text-gray-500 text-sm">Title</dt>
-                <dd>{profile.title || '—'}</dd>
+                <dt className="text-gray-500 text-sm">LinkedIn</dt>
+                <dd>{profile.linkedInUrl ? <a href={profile.linkedInUrl} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">{profile.linkedInUrl}</a> : '—'}</dd>
               </div>
-              {(Array.isArray(profile.socialChannels) ? profile.socialChannels : []).length > 0 && (
-                <div>
-                  <dt className="text-gray-500 text-sm mb-1">Social & work</dt>
-                  <dd className="space-y-1">
-                    {(Array.isArray(profile.socialChannels) ? profile.socialChannels : []).map((c: SocialChannel, i: number) => (
-                      <div key={i}>
-                        <a href={c.url} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">
-                          {c.platform}: {c.url}
-                        </a>
-                      </div>
-                    ))}
-                  </dd>
-                </div>
-              )}
+              <div>
+                <dt className="text-gray-500 text-sm">Twitter / X</dt>
+                <dd>{profile.twitterUrl ? <a href={profile.twitterUrl} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">{profile.twitterUrl}</a> : '—'}</dd>
+              </div>
+              <div>
+                <dt className="text-gray-500 text-sm">Instagram</dt>
+                <dd>{profile.instagramUrl ? <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-royal-violet hover:underline">{profile.instagramUrl}</a> : '—'}</dd>
+              </div>
             </dl>
           ) : (
             <form onSubmit={(e) => { handleSubmit(e); setEditing(false); }} className="space-y-4">
-              <input type="tel" placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} />
-              <input type="text" placeholder="Company" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} className={inputClass} />
-              <input type="text" placeholder="Title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClass} />
-              <div>
-                <span className="text-sm font-medium text-gray-700 block mb-2">Social & work (optional)</span>
-                {form.socialChannels.map((ch, i) => (
-                  <div key={i} className="flex gap-2 mb-2">
-                    <select
-                      value={ch.platform}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          socialChannels: form.socialChannels.map((c, j) => (j === i ? { ...c, platform: e.target.value } : c)),
-                        })
-                      }
-                      className={`${inputClass} flex-shrink-0 w-40`}
-                    >
-                      {SOCIAL_PLATFORMS.map((p) => (
-                        <option key={p} value={p}>
-                          {p}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="url"
-                      placeholder="URL"
-                      value={ch.url}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          socialChannels: form.socialChannels.map((c, j) => (j === i ? { ...c, url: e.target.value } : c)),
-                        })
-                      }
-                      className={`${inputClass} flex-1`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setForm({ ...form, socialChannels: form.socialChannels.filter((_, j) => j !== i) })}
-                      className="px-3 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, socialChannels: [...form.socialChannels, { platform: 'Other', url: '' }] })}
-                  className="text-sm font-medium text-royal-violet hover:underline"
-                >
-                  + Add channel
-                </button>
-              </div>
+              <input type="tel" placeholder="Phone number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClass} />
+              <input type="text" placeholder="Company name" value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} className={inputClass} />
+              <input type="url" placeholder="LinkedIn profile URL" value={form.linkedInUrl} onChange={(e) => setForm({ ...form, linkedInUrl: e.target.value })} className={inputClass} />
+              <input type="url" placeholder="Twitter / X profile URL" value={form.twitterUrl} onChange={(e) => setForm({ ...form, twitterUrl: e.target.value })} className={inputClass} />
+              <input type="url" placeholder="Instagram profile URL" value={form.instagramUrl} onChange={(e) => setForm({ ...form, instagramUrl: e.target.value })} className={inputClass} />
               {message && <p className={`text-sm ${message.includes('updated') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
               <button type="submit" disabled={saving} className="btn-primary disabled:opacity-50">
                 {saving ? 'Saving...' : 'Save changes'}

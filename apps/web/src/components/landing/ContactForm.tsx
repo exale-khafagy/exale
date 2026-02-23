@@ -118,8 +118,6 @@ export function ContactForm({ headline, ctaText }: ContactFormProps) {
         />
         <input
           name="phone"
-          type="tel"
-          required
           placeholder="Phone"
           value={formData.phone}
           onChange={(e) => setFormData({ ...formData, phone: e.target.value })}

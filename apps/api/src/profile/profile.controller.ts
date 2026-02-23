@@ -54,8 +54,9 @@ export class ProfileController {
       avatarUrl?: string;
       phone?: string;
       companyName?: string;
-      title?: string;
-      socialChannels?: Array<{ platform: string; url: string }>;
+      linkedInUrl?: string;
+      twitterUrl?: string;
+      instagramUrl?: string;
     },
     @Req() req: Request & { clerkId: string },
   ) {

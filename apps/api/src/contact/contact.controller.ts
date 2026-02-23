@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -19,17 +18,10 @@ export class ContactController {
 
   @Post()
   @Throttle({ form: { limit: 5, ttl: 60000 } })
-  create(@Body() body: { name?: string; email?: string; phone?: string; concern?: string; message?: string; honeypot?: string }) {
+  create(@Body() body: { name: string; email: string; phone: string; concern: string; message: string; honeypot?: string }) {
     if (body.honeypot) return { id: 'ok' }; // Bot trap – reject silently
-    const name = body.name?.trim();
-    const email = body.email?.trim();
-    const phone = body.phone?.trim();
-    const concern = body.concern?.trim();
-    const message = body.message?.trim();
-    if (!name || !email || !phone || !concern || !message) {
-      throw new BadRequestException('All fields are required: name, email, phone, concern, message.');
-    }
-    return this.contact.create({ name, email, phone, concern, message });
+    const { honeypot: _, ...dto } = body;
+    return this.contact.create(dto);
   }
 
   @Get()

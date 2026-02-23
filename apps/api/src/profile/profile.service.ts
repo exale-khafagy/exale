@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-export interface SocialChannel {
-  platform: string;
-  url: string;
-}
-
 export interface UpdateProfileDto {
   avatarUrl?: string;
   phone?: string;
   companyName?: string;
-  title?: string;
-  socialChannels?: SocialChannel[];
+  linkedInUrl?: string;
+  twitterUrl?: string;
+  instagramUrl?: string;
 }
 
 export interface SyncProfileDto {
@@ -61,13 +57,7 @@ export class ProfileService {
   async update(clerkId: string, dto: UpdateProfileDto) {
     return this.prisma.profile.update({
       where: { clerkId },
-      data: {
-        ...(dto.avatarUrl !== undefined && { avatarUrl: dto.avatarUrl }),
-        ...(dto.phone !== undefined && { phone: dto.phone }),
-        ...(dto.companyName !== undefined && { companyName: dto.companyName }),
-        ...(dto.title !== undefined && { title: dto.title }),
-        ...(dto.socialChannels !== undefined && { socialChannels: dto.socialChannels as object }),
-      },
+      data: dto,
     });
   }
 

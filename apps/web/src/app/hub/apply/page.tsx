@@ -18,8 +18,9 @@ interface ApplicationSubmission {
 
 interface Profile {
   companyName: string | null;
-  title: string | null;
-  socialChannels: Array<{ platform: string; url: string }> | null;
+  linkedInUrl: string | null;
+  twitterUrl: string | null;
+  instagramUrl: string | null;
 }
 
 export default function InboxApplyPage() {
@@ -528,28 +529,42 @@ export default function InboxApplyPage() {
                   <dd className="space-y-1 text-sm">
                     {matchingProfile.companyName && (
                       <p className="text-gray-900 dark:text-white">
-                        <span className="text-gray-500 dark:text-gray-400">Company:</span>{' '}
+                        <span className="text-gray-500 dark:text-gray-400">
+                          Company:
+                        </span>{' '}
                         {matchingProfile.companyName}
                       </p>
                     )}
-                    {matchingProfile.title && (
-                      <p className="text-gray-900 dark:text-white">
-                        <span className="text-gray-500 dark:text-gray-400">Title:</span>{' '}
-                        {matchingProfile.title}
-                      </p>
+                    {matchingProfile.linkedInUrl && (
+                      <a
+                        href={matchingProfile.linkedInUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-royal-violet hover:underline block"
+                      >
+                        LinkedIn
+                      </a>
                     )}
-                    {Array.isArray(matchingProfile.socialChannels) &&
-                      matchingProfile.socialChannels.map((ch, i) => (
-                        <a
-                          key={i}
-                          href={ch.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-royal-violet hover:underline block"
-                        >
-                          {ch.platform}
-                        </a>
-                      ))}
+                    {matchingProfile.twitterUrl && (
+                      <a
+                        href={matchingProfile.twitterUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-royal-violet hover:underline block"
+                      >
+                        Twitter
+                      </a>
+                    )}
+                    {matchingProfile.instagramUrl && (
+                      <a
+                        href={matchingProfile.instagramUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-royal-violet hover:underline block"
+                      >
+                        Instagram
+                      </a>
+                    )}
                   </dd>
                 </div>
               )}

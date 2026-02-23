@@ -42,6 +42,9 @@ const HUB_PATH_MAP: Record<string, string> = {
   '/settings': '/hub/settings',
 };
 
+/** Dashboard paths on the subdomain (no /hub prefix). Main site should redirect these to dashboard host — but NOT "/" which is the marketing homepage. */
+const DASHBOARD_PATHS = new Set(Object.keys(HUB_PATH_MAP).filter((p) => p !== '/'));
+
 function isDashboardHost(host: string | null): boolean {
   if (!host) return false;
   const h = host.replace(/:\d+$/, '');
@@ -67,11 +70,20 @@ async function subdomainMiddleware(request: NextRequest): Promise<NextResponse |
     }
   }
 
-  if (isMainSiteHost(host) && path.startsWith('/hub')) {
-    const dashboardPath = path === '/hub' || path === '/hub/' ? '/' : path.replace(/^\/hub/, '') || '/';
-    const dashboardUrl = new URL(dashboardPath, `https://${DASHBOARD_HOST}`);
-    dashboardUrl.search = url.search;
-    return NextResponse.redirect(dashboardUrl.toString());
+  // Main site: send any dashboard route to the dashboard subdomain (so URL is never exale.net/inbox etc.)
+  if (isMainSiteHost(host)) {
+    if (path.startsWith('/hub')) {
+      const dashboardPath = path === '/hub' || path === '/hub/' ? '/' : path.replace(/^\/hub/, '') || '/';
+      const dashboardUrl = new URL(dashboardPath, `https://${DASHBOARD_HOST}`);
+      dashboardUrl.search = url.search;
+      return NextResponse.redirect(dashboardUrl.toString());
+    }
+    const pathNorm = path.replace(/\/$/, '') || '/';
+    if (DASHBOARD_PATHS.has(pathNorm)) {
+      const dashboardUrl = new URL(pathNorm, `https://${DASHBOARD_HOST}`);
+      dashboardUrl.search = url.search;
+      return NextResponse.redirect(dashboardUrl.toString());
+    }
   }
 
   return null;

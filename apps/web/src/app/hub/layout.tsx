@@ -15,8 +15,26 @@ export function useHubRole() {
 }
 
 const DASHBOARD_HOST = process.env.NEXT_PUBLIC_DASHBOARD_HOST || 'dashboard.exale.net';
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://exale.net';
+const MAIN_SITE_HOST = process.env.NEXT_PUBLIC_SITE_HOST || 'exale.net';
+/** Main marketing site URL. Never the dashboard so "Go to exale.net" always leaves the dashboard. */
+const MAIN_SITE_URL =
+  MAIN_SITE_HOST === DASHBOARD_HOST || MAIN_SITE_HOST.startsWith('dashboard.')
+    ? 'https://exale.net'
+    : `https://${MAIN_SITE_HOST}`;
+/** URL used for "Go to exale.net" in hub only. Guaranteed not to be the dashboard (avoids misconfig sending users back to dashboard). */
+function getHubMainSiteUrl(): string {
+  try {
+    const url = process.env.NEXT_PUBLIC_SITE_URL || MAIN_SITE_URL;
+    const normalized = url.startsWith('http') ? url : `https://${url.replace(/^\/+|\/+$/g, '')}`;
+    const parsed = new URL(normalized);
+    if (parsed.hostname === DASHBOARD_HOST || parsed.hostname === 'dashboard.localhost') return 'https://exale.net';
+    return parsed.origin;
+  } catch {
+    return 'https://exale.net';
+  }
+}
+/** Use for "Go to exale.net" / "View Website" in hub so the link never points at the dashboard. */
+export const HUB_MAIN_SITE_URL = getHubMainSiteUrl();
 
 export type HubRole =
   | 'FOUNDER'
@@ -79,9 +97,14 @@ function AccessDeniedScreen({ siteUrl }: { siteUrl: string }) {
           Redirecting you to exale.net in 8 seconds…
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link href={siteUrl} className="btn-primary inline-block px-6 py-3">
+          <a
+            href={siteUrl}
+            className="btn-primary inline-block px-6 py-3 text-center"
+            onClick={(e) => { e.preventDefault(); window.location.href = siteUrl; }}
+            rel="noopener noreferrer"
+          >
             Go to exale.net
-          </Link>
+          </a>
           <SignOutButton signOutOptions={{ redirectUrl: siteUrl }}>
             <button className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
               Sign out
@@ -162,7 +185,7 @@ function HubLayoutContent({
           setRole(roleVal);
           if (!result.isAdmin && !isFounderEmail) {
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-              window.location.href = SITE_URL;
+              window.location.href = MAIN_SITE_URL;
             } else {
               router.push('/');
             }
@@ -215,7 +238,7 @@ function HubLayoutContent({
           } else {
             setIsAdmin(false);
             if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-              window.location.href = SITE_URL;
+              window.location.href = MAIN_SITE_URL;
             } else {
               router.push('/');
             }
@@ -229,7 +252,7 @@ function HubLayoutContent({
         } else {
           setIsAdmin(false);
           if (typeof window !== 'undefined' && (window.location.hostname === DASHBOARD_HOST || window.location.hostname === 'dashboard.localhost')) {
-            window.location.href = 'https://exale.net';
+            window.location.href = MAIN_SITE_URL;
           } else {
             router.push('/');
           }
@@ -272,7 +295,7 @@ function HubLayoutContent({
       </SignedOut>
       <SignedIn>
         {isAdmin === false ? (
-          <AccessDeniedScreen siteUrl={SITE_URL} />
+          <AccessDeniedScreen siteUrl={HUB_MAIN_SITE_URL} />
         ) : (
           <HubAuthContext.Provider value={{ role }}>
           <>
@@ -372,9 +395,10 @@ function HubLayoutContent({
                       )}
                     </button>
                     <a
-                      href={SITE_URL}
-                      onClick={(e) => { e.preventDefault(); window.location.href = SITE_URL; }}
+                      href={HUB_MAIN_SITE_URL}
+                      onClick={(e) => { e.preventDefault(); window.location.href = HUB_MAIN_SITE_URL; }}
                       className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-300 dark:text-gray-400 hover:text-white dark:hover:text-white transition-colors shrink-0"
+                      rel="noopener noreferrer"
                     >
                       <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -382,17 +406,18 @@ function HubLayoutContent({
                       Go to exale.net
                     </a>
                     <a
-                      href={SITE_URL}
-                      onClick={(e) => { e.preventDefault(); window.location.href = SITE_URL; }}
+                      href={HUB_MAIN_SITE_URL}
+                      onClick={(e) => { e.preventDefault(); window.location.href = HUB_MAIN_SITE_URL; }}
                       className="sm:hidden p-2 rounded-lg hover:bg-slate-700 dark:hover:bg-gray-800 text-gray-300 dark:text-gray-400 transition-colors"
                       aria-label="Go to exale.net"
+                      rel="noopener noreferrer"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </a>
                     <Link
-                      href={isDashboardSubdomain ? `${SITE_URL}/profile` : '/profile'}
+                      href={isDashboardSubdomain ? `${MAIN_SITE_URL}/profile` : '/profile'}
                       className="flex items-center gap-2 rounded-full overflow-hidden shrink-0 ml-2 border border-slate-600 dark:border-gray-600 hover:opacity-90 transition-opacity"
                       aria-label="Profile (sign out from profile page)"
                     >

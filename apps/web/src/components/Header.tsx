@@ -12,6 +12,9 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { apiGet } from '@/lib/api-auth';
 
+const DASHBOARD_HOST = process.env.NEXT_PUBLIC_DASHBOARD_HOST || 'dashboard.exale.net';
+const DASHBOARD_URL = `https://${DASHBOARD_HOST}/hub`;
+
 const navLinks = [
   { href: '/services', label: 'Services' },
   { href: '/partners', label: 'Partners' },
@@ -116,9 +119,9 @@ export function Header() {
 
                 <SignedIn>
                   {(isAdmin || isFounderEmail) && (
-                    <Link href="/hub" className={linkClass}>
+                    <a href={DASHBOARD_URL} className={linkClass}>
                       Dashboard
-                    </Link>
+                    </a>
                   )}
                   <Link
                     href="/profile"
@@ -180,13 +183,13 @@ export function Header() {
 
                   <SignedIn>
                     {(isAdmin || isFounderEmail) && (
-                      <Link 
-                        href="/hub" 
+                      <a
+                        href={DASHBOARD_URL}
                         className={`${linkClass} block py-3 mb-2`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         Dashboard
-                      </Link>
+                      </a>
                     )}
                     <Link
                       href="/profile"
